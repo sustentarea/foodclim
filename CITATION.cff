@@ -1,0 +1,60 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: "rice: WorldClim in NetLogo"
+message: >-
+  If you use this software, please cite it using the metadata from this file.
+type: software
+authors:
+  - given-names: Daniel
+    family-names: Vartanian
+    email: danvartan@gmail.com
+    affiliation: University of São Paulo
+    orcid: 'https://orcid.org/0000-0001-7782-759X'
+  - given-names: Aline Martins
+    family-names: Carvalho
+    email: alinenutri@usp.br
+    affiliation: University of São Paulo
+    orcid: 'https://orcid.org/0000-0002-4900-5609'
+identifiers:
+  - type: doi
+    value: 10.17605/OSF.IO/
+    description: OSF Research Compendium
+repository-code: 'https://github.com/sustentarea/rice'
+repository: 'https://doi.org/'
+repository-artifact: 'https://doi.org/'
+abstract: >-
+  `rice` is a NetLogo model designed to simulate and visualize the response of
+  rice under different climate conditions. Its primary goal is to facilitate
+  the integration of food agents into agent-based models and enhance the
+  reproducibility of these simulations.
+keywords:
+  - Agent-based modeling
+  - Climate change
+  - Climate data visualization
+  - Climate model integration
+  - Climate projections
+  - Climate simulation
+  - CMIP6
+  - Complex systems
+  - Complexity science
+  - Data interoperability
+  - Environmental sciences
+  - Environmental simulation
+  - Future climate scenarios
+  - Geospatial analysis
+  - Historical climate data
+  - Models
+  - NetLogo
+  - R (programming language)
+  - Raster data
+  - Reproducible research
+  - Shared socioeconomic pathways
+  - Simulations
+  - Spatial analysis
+  - Spatial resolution
+  - SSPs
+  - Time series
+  - WorldClim
+license: MIT
