@@ -13,10 +13,10 @@ MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://choosealicense
 
 ## Overview
 
-`rice` is a NetLogo model designed to simulate and visualize the
-response of rice under different climate conditions. Its primary goal is
-to facilitate the integration of food agents into agent-based models and
-enhance the reproducibility of these simulations.
+`rice` is a NetLogo model designed to simulate and visualize how rice
+crops respond to different climate conditions. It aims to support the
+integration of food agents into agent-based models and improve the
+reproducibility of these simulations.
 
 The model runs in paralel with the
 [`LogoClim`](https://github.com/sustentarea/logoclim) model, which
@@ -30,14 +30,15 @@ helps support the ongoing improvement of the model.
 
 To cite `rice` in publications please use the following format:
 
-Vartanian, D., & Carvalho, A. M. (2025). *rice: Rice production in
-NetLogo* \[Computer software, NetLogo model\]. <https://doi.org/>
+Vartanian, D., & Carvalho, A. M. (2025). *rice: A NetLogo model of rice
+crop responses to climate conditions* \[Computer software, NetLogo
+model\]. <https://doi.org/>
 
 A BibTeX entry for LaTeX users is:
 
 ``` latex
 @Misc{vartanian2025,
-  title = {rice: Rice production in NetLogo},
+  title = {rice: A NetLogo model of rice crop responses to climate conditions},
   author = {{Daniel Vartanian} and {Aline Martins de Carvalho}},
   year = {2025},
   doi = {https://doi.org/},

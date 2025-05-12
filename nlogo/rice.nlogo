@@ -194,23 +194,33 @@ to walk [#wait?]
   foreach (combine range-pxcor range-pycor) [
     #comb -> ask patch (first #comb) (last #comb) [
       ls:let #comb #comb
-      let lg-tmin [[value] of patch (first #comb) (last #comb)] ls:of model-tmin
-      let lg-tmax [[value] of patch (first #comb) (last #comb)] ls:of model-tmax
-      let lg-prec [[value] of patch (first #comb) (last #comb)] ls:of model-prec
+      let lc-tmin [[value] of patch (first #comb) (last #comb)] ls:of model-tmin
+      let lc-tmax [[value] of patch (first #comb) (last #comb)] ls:of model-tmax
+      let lc-prec [[value] of patch (first #comb) (last #comb)] ls:of model-prec
+      let lc-lat [[pxcor] of patch (first #comb) (last #comb)] ls:of model-tmin
+      let lc-lon [[pycor] of patch (first #comb) (last #comb)] ls:of model-tmin
 
       let random-mult 1
 
       if (add-random? = true) [
-        set random-mult random-float random-mult-threshold
+        set random-mult random-float random-threshold
+
+        ifelse (random-float 1 < 0.5) [
+          set random-mult 1 - random-mult
+        ] [
+          set random-mult 1 + random-mult
+        ]
       ]
 
       if (
-        ((lg-tmin <= 0) or (lg-tmin >= 0)) and
-        ((lg-tmax <= 0) or (lg-tmax >= 0)) and
-        ((lg-prec <= 0) or (lg-prec >= 0))
+        ((lc-tmin <= 0) or (lc-tmin >= 0)) and
+        ((lc-tmax <= 0) or (lc-tmax >= 0)) and
+        ((lc-prec <= 0) or (lc-prec >= 0))
        ) [
         set value (
-          intercept + (tmin-beta * lg-tmin) + (tmax-beta * lg-tmax) + (prec-beta * lg-prec)
+          intercept +
+            (tmin-beta * lc-tmin) + (tmax-beta * lc-tmax) + (prec-beta * lc-prec) +
+            (lat-beta * lc-lat) + (lon-beta * lc-lon)
         ) * random-mult
       ]
 
@@ -371,9 +381,9 @@ to-report get-longitude [#pycor]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-455
+675
 10
-1005
+1225
 489
 -1
 -1
@@ -462,11 +472,41 @@ SLIDER
 162
 220
 195
-random-mult-threshold
-random-mult-threshold
+lat-beta
+lat-beta
 0
 5
-1.25
+0.5
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+10
+200
+220
+233
+lon-beta
+lon-beta
+0
+5
+0.3
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+10
+238
+220
+271
+random-threshold
+random-threshold
+0
+1
+0.2
 0.1
 1
 NIL
@@ -474,9 +514,9 @@ HORIZONTAL
 
 SWITCH
 10
-200
+276
 220
-233
+309
 add-random?
 add-random?
 1
@@ -484,20 +524,20 @@ add-random?
 -1000
 
 CHOOSER
+230
 10
-238
-220
-283
+440
+55
 start-month
 start-month
 "January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December"
 0
 
 INPUTBOX
-10
-288
-220
-348
+230
+60
+440
+120
 start-year
 1960.0
 1
@@ -505,10 +545,10 @@ start-year
 Number
 
 BUTTON
-10
-353
-220
-388
+230
+125
+440
+160
 Select data directory
 set data-path user-directory
 NIL
@@ -522,10 +562,10 @@ NIL
 1
 
 INPUTBOX
-10
-393
-220
-453
+230
+165
+440
+225
 data-path
 ../data/
 1
@@ -533,10 +573,10 @@ data-path
 String
 
 BUTTON
-10
-458
-220
-493
+230
+230
+440
+265
 Select LogoClim file
 set logoclim-path user-file
 NIL
@@ -550,10 +590,10 @@ NIL
 1
 
 INPUTBOX
-10
-498
-220
-558
+230
+270
+440
+330
 logoclim-path
 ../../logoclim/nlogo/logoclim.nlogo
 1
@@ -561,9 +601,9 @@ logoclim-path
 String
 
 BUTTON
-230
+450
 10
-330
+550
 45
 Setup
 setup
@@ -578,9 +618,9 @@ NIL
 1
 
 BUTTON
-340
+560
 10
-440
+660
 45
 Go
 go true true true
@@ -595,9 +635,9 @@ NIL
 1
 
 BUTTON
-230
+450
 50
-330
+550
 85
 Go back
 go-back
@@ -612,9 +652,9 @@ NIL
 1
 
 BUTTON
-340
+560
 50
-440
+660
 85
 Go forward
 go false false false
@@ -629,9 +669,9 @@ NIL
 1
 
 SLIDER
-230
+450
 90
-440
+660
 123
 transition-seconds
 transition-seconds
@@ -644,9 +684,9 @@ s
 HORIZONTAL
 
 SLIDER
-230
+450
 128
-440
+660
 161
 patch-px-size
 patch-px-size
@@ -659,9 +699,9 @@ px
 HORIZONTAL
 
 SWITCH
-230
+450
 166
-440
+660
 199
 interactive
 interactive
@@ -670,20 +710,20 @@ interactive
 -1000
 
 INPUTBOX
-230
+450
 204
-440
+660
 264
 rice-color
-64.0
+25.0
 1
 0
 Color
 
 INPUTBOX
-230
+450
 269
-440
+660
 329
 background-color
 9.0
@@ -692,9 +732,9 @@ background-color
 Color
 
 SLIDER
-230
+450
 334
-440
+660
 367
 black-value
 black-value
@@ -707,9 +747,9 @@ NIL
 HORIZONTAL
 
 SWITCH
-230
+450
 372
-440
+660
 405
 black-min
 black-min
@@ -718,9 +758,9 @@ black-min
 -1000
 
 SLIDER
-230
+450
 410
-440
+660
 443
 white-value
 white-value
@@ -733,9 +773,9 @@ NIL
 HORIZONTAL
 
 SWITCH
-230
+450
 448
-440
+660
 481
 white-max
 white-max
@@ -744,9 +784,9 @@ white-max
 -1000
 
 BUTTON
-230
+450
 486
-440
+660
 521
 Show values
 show-values
@@ -761,9 +801,9 @@ NIL
 1
 
 MONITOR
-1020
+1240
 10
-1120
+1340
 55
 Year
 year
@@ -772,9 +812,9 @@ year
 11
 
 MONITOR
-1130
+1350
 10
-1230
+1450
 55
 Month
 month-monitor month
@@ -783,9 +823,9 @@ month-monitor month
 11
 
 PLOT
-1020
+1240
 60
-1230
+1450
 240
 Mean
 Months
@@ -801,9 +841,9 @@ PENS
 "default" 0.5 0 -16777216 true "" "plot mean [value] of patches with [value >= -99999]"
 
 MONITOR
-1020
+1240
 245
-1230
+1450
 290
 Mean
 mean [value] of patches with [value >= -99999]
@@ -812,9 +852,9 @@ mean [value] of patches with [value >= -99999]
 11
 
 PLOT
-1020
+1240
 295
-1230
+1450
 475
 Minimum
 Months
@@ -830,9 +870,9 @@ PENS
 "default" 0.5 0 -16777216 true "" "plot min [value] of patches with [value >= -99999]"
 
 MONITOR
-1020
+1240
 480
-1230
+1450
 525
 Minimum
 min [value] of patches with [value >= -99999]
@@ -841,9 +881,9 @@ min [value] of patches with [value >= -99999]
 11
 
 PLOT
-1240
+1460
 60
-1450
+1670
 240
 Standard Deviation
 Months
@@ -859,9 +899,9 @@ PENS
 "default" 0.5 0 -16777216 true "" "plot standard-deviation [value] of patches with [value >= -99999]"
 
 MONITOR
-1240
+1460
 245
-1450
+1670
 290
 Standard deviation
 standard-deviation [value] of patches with [value >= -99999]
@@ -870,9 +910,9 @@ standard-deviation [value] of patches with [value >= -99999]
 11
 
 PLOT
-1240
+1460
 295
-1450
+1670
 475
 Maximum
 Months
@@ -888,9 +928,9 @@ PENS
 "default" 0.5 0 -16777216 true "" "plot max [value] of patches with [value >= -99999]"
 
 MONITOR
-1240
+1460
 480
-1450
+1670
 525
 Maximum
 max [value] of patches with [value >= -99999]
@@ -898,57 +938,10 @@ max [value] of patches with [value >= -99999]
 1
 11
 
-PLOT
-1460
-60
-1670
-240
-Value Distribution
-NIL
-Frequency
-0.0
-0.0
-0.0
-0.0
-true
-false
-"let min-plot-x floor (min [value] of patches with [value >= -99999])\nlet max-plot-x ceiling (max [value] of patches with [value >= -99999])\nset-plot-x-range min-plot-x (max-plot-x)\nset-histogram-num-bars 30" "let min-plot-x floor (min [value] of patches with [value >= -99999])\nlet max-plot-x ceiling (max [value] of patches with [value >= -99999])\nset-plot-x-range min-plot-x (max-plot-x)\nset-histogram-num-bars 30"
-PENS
-"default" 1.0 1 -16777216 true "" "histogram [value] of patches with [value >= -99999]"
-
-PLOT
-1460
-295
-1670
-475
-Observed Mean Deviation
-NIL
-P Diff
-0.0
-0.0
--10.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot 1 - (mean ([value] of patches with [value >= -99999]))"
-
-MONITOR
-1460
-480
-1670
-525
-Observed mean deviation
-1 - (mean ([value] of patches with [value >= -99999]))
-5
-1
-11
-
 BUTTON
-230
+450
 525
-440
+660
 561
 Shock
 shock
@@ -963,7 +956,7 @@ NIL
 1
 
 @#$#@#$#@
-# RICE: RICE PRODUCTION IN NETLOGO
+# RICE: A NETLOGO MODEL OF RICE CROP RESPONSES TO CLIMATE CONDITIONS
 
 Developer version.
 @#$#@#$#@
