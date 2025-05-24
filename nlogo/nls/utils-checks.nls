@@ -1,4 +1,5 @@
-; This file is part of the model: Rice production in NetLogo.
+; This file is part of the model:
+; FoodClim: Simulating Food Yield Responses to Climate Change in Netlogo
 ; Extensions used: pathdir` and `sr`.
 
 ; # Halt Functions
@@ -53,26 +54,31 @@ to-report is-logical? [#x]
   report #x = true or #x = false
 end
 
-to-report test-series-data-path [#series-path]
-  assert-string #series-path
+to-report fix-string-for-r [#path]
+  assert-atomic #path
 
-  (sr:run
-    (word
-      "path <- "
-      "'"
-      fix-string-for-r #series-path
-      "'"
-    )
-    (word
-      "test <- ifelse("
-      "dir.exists(path),"
-      "!length(list.files(path)) == 0,"
-      "FALSE"
-      ")"
-    )
-  )
+  let test true
+  set #path as-character #path
 
-  report sr:runresult "test"
+  carefully [
+    let r-test sr:runresult (word "'" #path "'")
+  ] [
+    set test false
+  ]
+
+  ifelse (test = false) [
+    let separator pathdir:get-separator
+    let double-separator rep-collapse separator 2
+    let str-split string:split-on separator #path
+
+    if (last str-split = "") [
+      set str-split but-last str-split
+    ]
+
+    report collapse str-split double-separator
+  ] [
+    report #path
+  ]
 end
 
 to-report test-string-in-r [#string]

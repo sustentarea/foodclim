@@ -1,4 +1,5 @@
-; This file is part of the model: Rice production in NetLogo.
+; This file is part of the model:
+; FoodClim: Simulating Food Yield Responses to Climate Change in Netlogo
 ; Extensions used: `pathdir`, `sr`, and `string`.
 
 to-report normalize-year [#year]

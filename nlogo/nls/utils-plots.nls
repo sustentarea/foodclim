@@ -1,4 +1,5 @@
-; This file is part of the model: Rice production in NetLogo.
+; This file is part of the model:
+; FoodClim: Simulating Food Yield Responses to Climate Change in Netlogo
 
 to-report month-monitor [#month]
   assert-string-or-integer #month

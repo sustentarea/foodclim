@@ -1,4 +1,5 @@
-; This file is part of the model: Rice production in NetLogo.
+; This file is part of the model:
+; FoodClim: Simulating Food Production Yield to Climate Change in Netlogo
 ; Extensions used: `sr`.
 
 to-report as-character [#x]
