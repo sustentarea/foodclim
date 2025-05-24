@@ -60,7 +60,7 @@ A BibTeX entry for LaTeX users is:
 
 ``` latex
 @Misc{vartanian2025,
-  title = {FoodClim: Simulating food production responses to climate change in NetLogo},
+  title = {FoodClim: Simulating food yield responses to climate change in NetLogo},
   author = {{Daniel Vartanian} and {Aline Martins de Carvalho}},
   year = {2025},
   doi = {https://doi.org/10.17605/OSF.IO/ZGVMP},

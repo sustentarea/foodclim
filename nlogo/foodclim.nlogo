@@ -46,6 +46,7 @@ globals [
   leafy-veg-res-model
   fruits-res-model
   dairy-res-model
+  flip-index ; To use with `flip-data-series?`.
   temp ; To use with `run`.
 ]
 
@@ -75,7 +76,7 @@ to setup [#seed]
 
   set start-year normalize-year start-year
 
-  setup-logoclim #seed
+  setup-logoclim
   setup-world
   setup-variables
   setup-patches
@@ -84,7 +85,7 @@ to setup [#seed]
   reset-ticks
 end
 
-to setup-logoclim [#seed]
+to setup-logoclim
   ifelse (interactive = true) [
     ls:create-interactive-models 3 logoclim-path
   ] [
@@ -95,7 +96,6 @@ to setup-logoclim [#seed]
   set tmax-ls-model 1
   set prec-ls-model 2
 
-  ls:let #seed #seed
   ls:let #data-series data-series
   ls:let #data-resolution data-resolution
   ls:let #global-climate-model global-climate-model
@@ -124,7 +124,7 @@ to setup-logoclim [#seed]
     set climate-variable "Total precipitation (mm)"
   ]
 
-  ls:ask ls:models [setup #seed]
+  ls:ask ls:models [setup]
 end
 
 to setup-world
@@ -209,20 +209,26 @@ to go [#tick? #wait?]
 
   ls:ask ls:models [go true true]
 
-  if (
-    (index = [index] ls:of tmin-ls-model) and
-    (auto-future? = true)
+  if (month = [month] ls:of tmin-ls-model) [
+    ifelse (
+      (flip-data-series? = true) and
+      ([data-series] ls:of tmin-ls-model != "Future climate data")
     ) [
-    ls:let #data-resolution data-resolution
-    ls:let #global-climate-model global-climate-model
-    ls:let #shared-socioeconomic-pathway shared-socioeconomic-pathway
+      set flip-index index
 
-    ls:ask ls:models [
-      set data-series "Future climate data"
-      set global-climate-model #global-climate-model
-      set shared-socioeconomic-pathway #shared-socioeconomic-pathway
+      ls:let #global-climate-model global-climate-model
+      ls:let #shared-socioeconomic-pathway shared-socioeconomic-pathway
 
-      setup seed
+      ls:ask ls:models [
+        set data-series "Future climate data"
+        set global-climate-model #global-climate-model
+        set shared-socioeconomic-pathway #shared-socioeconomic-pathway
+        set start-month "January"
+
+        setup
+      ]
+    ] [
+      stop
     ]
   ]
 
@@ -249,17 +255,38 @@ end
 to go-back
   ls:ask ls:models [go-back]
 
-  ifelse (index = [index] ls:of tmin-ls-model) [
-    stop
-  ] [
-    set index [index] ls:of tmin-ls-model
-    set year [year] ls:of tmin-ls-model
-    set month [month] ls:of tmin-ls-model
+  if (month = [month] ls:of tmin-ls-model) [
+    ifelse (
+      (flip-data-series? = true) and
+      ([data-series] ls:of tmin-ls-model = "Future climate data")
+    ) [
+      ls:let #index flip-index
+      ls:let #year start-year
+      ls:let #month start-month
 
-    update-climate-vars
-    compute-yield
-    update-patches
+      ls:ask ls:models [
+        set data-series "Historical monthly weather data"
+        set start-year #year
+        set start-month #month
+
+        setup
+
+        set index #index
+        set year 2021
+        set month 12
+      ]
+    ] [
+      stop
+    ]
   ]
+
+  set index [index] ls:of tmin-ls-model
+  set year [year] ls:of tmin-ls-model
+  set month [month] ls:of tmin-ls-model
+
+  update-climate-vars
+  compute-yield
+  update-patches
 end
 
 to update-climate-vars
@@ -473,9 +500,9 @@ Months
 30.0
 
 SLIDER
-15
+10
 730
-225
+220
 763
 grains-intercept
 grains-intercept
@@ -488,9 +515,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-15
+10
 768
-225
+220
 801
 grains-tmin-beta
 grains-tmin-beta
@@ -503,9 +530,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-15
+10
 806
-225
+220
 839
 grains-tmax-beta
 grains-tmax-beta
@@ -518,9 +545,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-15
+10
 844
-225
+220
 877
 grains-prec-beta
 grains-prec-beta
@@ -533,9 +560,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-15
+10
 882
-225
+220
 915
 grains-lat-beta
 grains-lat-beta
@@ -548,9 +575,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-15
+10
 920
-225
+220
 953
 grains-lon-beta
 grains-lon-beta
@@ -563,9 +590,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-15
+10
 960
-225
+220
 993
 grains-random-threshold
 grains-random-threshold
@@ -864,12 +891,12 @@ true
 true
 "set-plot-y-range min-plot-y max-plot-y" ""
 PENS
-"Grains" 1.0 0 -955883 true "" "plot mean [grains-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Protein" 1.0 0 -8630108 true "" "plot mean [protein-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Dairy" 1.0 0 -13345367 true "" "plot mean [dairy-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Non-leafy veg." 1.0 0 -13840069 true "" "plot mean [non-leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Leafy veg." 1.0 0 -14835848 true "" "plot mean [leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Fruits" 1.0 0 -2674135 true "" "plot mean [fruits-yield] of patches with [(value <= 0) or (value >= 0)]"
+"Grains" 1.0 0 -955883 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color orange + 3\n]\n\nplot mean [grains-yield] of patches with [(value <= 0) or (value >= 0)]"
+"Protein" 1.0 0 -8630108 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color violet + 3\n]\n\nplot mean [protein-yield] of patches with [(value <= 0) or (value >= 0)]"
+"Dairy" 1.0 0 -13345367 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color blue + 3\n]\n\nplot mean [dairy-yield] of patches with [(value <= 0) or (value >= 0)]"
+"Non-leafy veg." 1.0 0 -13840069 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color lime + 3\n]\n\nplot mean [non-leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]"
+"Leafy veg." 1.0 0 -14835848 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color turquoise + 3\n]\n\nplot mean [leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]"
+"Fruits" 1.0 0 -2674135 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color red + 3\n]\n\nplot mean [fruits-yield] of patches with [(value <= 0) or (value >= 0)]"
 
 MONITOR
 1020
@@ -909,12 +936,12 @@ true
 true
 "set-plot-y-range min-plot-y max-plot-y" ""
 PENS
-"Grains" 1.0 0 -955883 true "" "plot standard-deviation [grains-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Protein" 1.0 0 -8630108 true "" "plot standard-deviation [protein-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Dairy" 1.0 0 -13345367 true "" "plot standard-deviation [dairy-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Non-leafy veg." 1.0 0 -13840069 true "" "plot standard-deviation [non-leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Leafy veg." 1.0 0 -14835848 true "" "plot standard-deviation [leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Fruits" 1.0 0 -2674135 true "" "plot standard-deviation [fruits-yield] of patches with [(value <= 0) or (value >= 0)]"
+"Grains" 1.0 0 -955883 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color orange + 3\n]\n\nplot standard-deviation [grains-yield] of patches with [(value <= 0) or (value >= 0)]"
+"Protein" 1.0 0 -8630108 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color violet + 3\n]\n\nplot standard-deviation [protein-yield] of patches with [(value <= 0) or (value >= 0)]"
+"Dairy" 1.0 0 -13345367 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color blue + 3\n]\n\nplot standard-deviation [dairy-yield] of patches with [(value <= 0) or (value >= 0)]"
+"Non-leafy veg." 1.0 0 -13840069 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color lime + 3\n]\n\nplot standard-deviation [non-leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]"
+"Leafy veg." 1.0 0 -14835848 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color turquoise + 3\n]\n\nplot standard-deviation [leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]"
+"Fruits" 1.0 0 -2674135 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color red + 3\n]\n\nplot standard-deviation [fruits-yield] of patches with [(value <= 0) or (value >= 0)]"
 
 MONITOR
 1240
@@ -989,9 +1016,9 @@ Parameters for Food Group Yield Response
 1
 
 SLIDER
-260
+255
 730
-470
+465
 763
 protein-intercept
 protein-intercept
@@ -1014,9 +1041,9 @@ world-view
 0
 
 SLIDER
-260
+255
 770
-470
+465
 803
 protein-tmin-beta
 protein-tmin-beta
@@ -1029,9 +1056,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-260
+255
 810
-470
+465
 843
 protein-tmax-beta
 protein-tmax-beta
@@ -1044,9 +1071,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-260
+255
 850
-470
+465
 883
 protein-prec-beta
 protein-prec-beta
@@ -1059,9 +1086,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-260
+255
 885
-470
+465
 918
 protein-lat-beta
 protein-lat-beta
@@ -1074,9 +1101,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-260
+255
 920
-470
+465
 953
 protein-lon-beta
 protein-lon-beta
@@ -1089,9 +1116,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-260
+255
 960
-470
+465
 993
 protein-random-threshold
 protein-random-threshold
@@ -1419,9 +1446,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-510
+505
 730
-720
+715
 763
 dairy-intercept
 dairy-intercept
@@ -1434,9 +1461,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-510
+505
 770
-720
+715
 803
 dairy-tmin-beta
 dairy-tmin-beta
@@ -1449,9 +1476,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-510
+505
 810
-720
+715
 843
 dairy-tmax-beta
 dairy-tmax-beta
@@ -1464,9 +1491,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-510
+505
 850
-720
+715
 883
 dairy-prec-beta
 dairy-prec-beta
@@ -1479,9 +1506,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-510
+505
 885
-720
+715
 918
 dairy-lat-beta
 dairy-lat-beta
@@ -1494,9 +1521,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-510
+505
 920
-720
+715
 953
 dairy-lon-beta
 dairy-lon-beta
@@ -1509,9 +1536,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-510
+505
 960
-720
+715
 993
 dairy-random-threshold
 dairy-random-threshold
@@ -1539,9 +1566,9 @@ NIL
 HORIZONTAL
 
 INPUTBOX
-15
+10
 640
-225
+220
 725
 grains-response-model
 #yield = #intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#latitude-beta * #latituude) + (#longitude-beta * #longitude)
@@ -1550,9 +1577,9 @@ grains-response-model
 String
 
 INPUTBOX
-260
+255
 640
-470
+465
 725
 protein-response-model
 #yield = #intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#latitude-beta * #latituude) + (#longitude-beta * #longitude)
@@ -1561,9 +1588,9 @@ protein-response-model
 String
 
 INPUTBOX
-510
+505
 640
-720
+715
 725
 dairy-response-model
 #yield = #intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#latitude-beta * #latituude) + (#longitude-beta * #longitude)
@@ -1609,8 +1636,8 @@ SWITCH
 430
 220
 463
-auto-future?
-auto-future?
+flip-data-series?
+flip-data-series?
 0
 1
 -1000
@@ -1652,8 +1679,8 @@ SLIDER
 578
 raise-lower-prec
 raise-lower-prec
--1000
-1000
+-250
+250
 0.0
 0.1
 1
@@ -1671,16 +1698,40 @@ shock
 1
 -1000
 
+MONITOR
+1240
+10
+1450
+55
+Data series
+[data-series] ls:of tmin-ls-model
+0
+1
+11
+
 @#$#@#$#@
 # FOODCLIM: SIMULATING FOOD YIELD RESPONSES TO CLIMATE CHANGE IN NETLOGO
 
 You are currently using the developer version of `FoodClim`.
+
+### TO DO
+
+- Fix interface proportions.
+- Implmenent string response functions.
+- Separate util functions.
+- Reveise and refactor code.
 
 ## HOW TO USE IT
 
 Refer to the [`LogoClim`](https://github.com/sustentarea/logoclim) installation guide for detailed steps on installing the required dependencies.
 
 Once `LogoClim` is installed, you can run the `FoodClim` model by specifying the path to your `LogoClim` installation in the `FoodClim` interface. This allows `FoodClim` to access climate data provided by `LogoClim` during simulations.
+
+### BEHAVIOR NOTES
+
+Due to the use of empirical data, the world and charts may experience some delay. However, it’s important to note the order of events: the world will always update **before** the charts.
+
+If `flip-series?` is on, the color of the chart series will slightly fade at the point where the flip occurs.
 
 ## HOW TO CITE
 
