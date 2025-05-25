@@ -1,0 +1,59 @@
+; __includes ["check-true.nls" "lookup-food-group.nls"]
+
+; globals [
+;   background-color
+;   black-min
+;   black-value
+;   max-value
+;   min-value
+;   white-max
+;   white-value
+;   world-view
+; ]
+
+to update-patches
+  let food lookup-food-group world-view
+
+  ask patches with [(value <= 0) or (value >= 0)] [
+    run (word "set value " food "-yield")
+  ]
+
+  let food-color lime
+
+  (ifelse
+    (world-view = "Grains") [
+    set food-color orange
+  ] (world-view = "Protein") [
+    set food-color violet
+  ] (world-view = "Non-leafy vegetables") [
+    set food-color lime
+  ] (world-view = "Leafy vegetables") [
+    set food-color turquoise
+  ] (world-view = "Fruits") [
+    set food-color red
+  ] (world-view = "Dairy") [
+    set food-color blue
+  ] [
+    error "Invalid value in `world-view`."
+  ])
+
+  ifelse (is-true? white-max) [
+    set max-value max [value] of patches with [(value <= 0) or (value >= 0)]
+  ] [
+    set max-value white-value
+  ]
+
+  ifelse (is-true? black-min) [
+    set min-value min [value] of patches with [(value <= 0) or (value >= 0)]
+  ] [
+    set min-value black-value
+  ]
+
+  ask (patches) [
+    ifelse ((value <= 0) or (value >= 0)) [
+      set pcolor scale-color food-color value min-value max-value
+    ] [
+      set pcolor background-color
+    ]
+  ]
+end

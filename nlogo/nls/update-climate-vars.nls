@@ -1,0 +1,23 @@
+; globals [
+;   patch-coordinates
+;   raise-lower-prec
+;   raise-lower-tmax
+;   raise-lower-tmin
+; ]
+
+to update-climate-vars
+  foreach (patch-coordinates) [
+    #i -> ask patch (first #i) (last #i) [
+      ls:let #i #i
+      set tmin [[value] of patch (first #i) (last #i)] ls:of tmin-ls-model
+      set tmax [[value] of patch (first #i) (last #i)] ls:of tmax-ls-model
+      set prec [[value] of patch (first #i) (last #i)] ls:of prec-ls-model
+    ]
+  ]
+
+  ask patches with [(tmin <= 0) or (tmin >= 0)] [
+    set tmin tmin + raise-lower-tmin
+    set tmax tmax + raise-lower-tmax
+    set prec prec + raise-lower-prec
+  ]
+end

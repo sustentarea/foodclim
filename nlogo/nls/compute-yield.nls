@@ -1,0 +1,10 @@
+; __includes ["compute-food-yield.nls"]
+
+to compute-yield
+  compute-food-yield "grains"
+  compute-food-yield "protein"
+  compute-food-yield "dairy"
+  compute-food-yield "non-leafy-veg"
+  compute-food-yield "leafy-veg"
+  compute-food-yield "fruits"
+end

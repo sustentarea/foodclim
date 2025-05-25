@@ -1,0 +1,28 @@
+; Require the `stringr` R package.
+
+; __includes [
+;   "check-atomic.nls"
+;   "check-string.nls"
+;   "normalize-value.nls"
+;   "single-quote.nls"
+; ]
+
+; extensions [sr]
+
+; Don't forget to use `sr:setup` in `setup`.
+
+to-report str-detect [#x #pattern]
+  assert-string #pattern
+
+  set #x normalize-value #x
+
+  report sr:runresult (word
+    "stringr::str_detect("
+    "string = "
+    #x
+    ", "
+    "pattern = "
+    single-quote #pattern
+    ")"
+  )
+end

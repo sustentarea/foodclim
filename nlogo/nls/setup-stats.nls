@@ -1,0 +1,30 @@
+; __includes ["quartile.nls"]
+; globals [max-value min-value max-plot-y min-plot-y]
+
+; patches-own [
+;   grains-yield
+;   protein-yield
+;   non-leafy-veg-yield
+;   leafy-veg-yield
+;   fruits-yield
+;   dairy-yield
+; ]
+
+to setup-stats
+  let yield-data (sentence
+    [grains-yield] of patches with [(value <= 0) or (value >= 0)]
+    [protein-yield] of patches with [(value <= 0) or (value >= 0)]
+    [non-leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]
+    [leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]
+    [fruits-yield] of patches with [(value <= 0) or (value >= 0)]
+    [dairy-yield] of patches with [(value <= 0) or (value >= 0)]
+  )
+
+  set max-value max yield-data
+  set min-value min yield-data
+
+  set min-plot-y ifelse-value (min-value < 0) [floor min-value] [0]
+  set max-plot-y ceiling (
+    (quartile yield-data 3) + (3 * (quartile yield-data "iqr"))
+  )
+end

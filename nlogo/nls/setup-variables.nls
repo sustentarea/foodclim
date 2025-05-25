@@ -1,0 +1,40 @@
+; __includes ["combine.nls" "parse-res-model-string.nls"]
+; extensions [ls]
+
+; globals[
+;   tmin-ls-model
+;   index
+;   range-pxcor
+;   range-pycor
+;   patch-coordinates
+;   year
+;   month
+;   grains-res-model
+;   protein-res-model
+;   non-leafy-veg-res-model
+;   leafy-veg-res-model
+;   fruits-res-model
+;   dairy-res-model
+;   grains-response-model
+;   protein-response-model
+;   non-leafy-veg-response-model
+;   leafy-veg-response-model
+;   fruits-response-model
+;   dairy-response-model
+; ]
+
+to setup-variables
+  set index [index] ls:of tmin-ls-model
+  set range-pxcor (range min-pxcor (max-pxcor + 1))
+  set range-pycor (range min-pycor (max-pycor + 1))
+  set patch-coordinates combine range-pxcor range-pycor
+  set year [year] ls:of tmin-ls-model
+  set month [month] ls:of tmin-ls-model
+
+  set grains-res-model parse-res-model-string grains-response-model
+  set protein-res-model parse-res-model-string protein-response-model
+  set non-leafy-veg-res-model parse-res-model-string non-leafy-veg-response-model
+  set leafy-veg-res-model parse-res-model-string leafy-veg-response-model
+  set fruits-res-model parse-res-model-string fruits-response-model
+  set dairy-res-model parse-res-model-string dairy-response-model
+end

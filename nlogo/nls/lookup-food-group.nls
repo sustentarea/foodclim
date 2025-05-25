@@ -1,0 +1,28 @@
+; __includes ["check-string.nls" "single-quote.nls"]
+
+to-report lookup-food-group [#string]
+  assert-string #string
+
+  (ifelse
+    (#string = "Grains") [
+      report "grains"
+    ] (#string = "Protein") [
+      report "protein"
+    ] (#string = "Dairy") [
+      report "dairy"
+    ] (#string = "Non-leafy vegetables") [
+      report "non-leafy-veg"
+    ] (#string = "Leafy vegetables") [
+      report "leafy-veg"
+    ] (#string = "Fruits") [
+      report "fruits"
+    ] [
+      user-message (word
+        "The option "
+        single-quote #string " "
+        "is not found among the valid options. "
+        "Please check your settings."
+      )
+    ]
+  )
+end

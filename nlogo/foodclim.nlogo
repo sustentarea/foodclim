@@ -1,20 +1,49 @@
 ; FoodClim: Simulating Food Yield Responses to Climate Change in Netlogo
 ;
 ; Version: 2025-05-23 0.0.0.9000
-; Authors: Daniel Vartanian, Leandro M. T. Garcia, & Aline M. de Carvalho.
-; Maintainer: Daniel Vartanian <https://github.com/danielvartan>.
-; License: MIT.
-; Repository: https://github.com/sustentarea/foodclim/
+; Authors: Daniel Vartanian, Leandro M. T. Garcia, & Aline M. de Carvalho
+; Maintainer: Daniel Vartanian <https://github.com/danielvartan>
+; License: MIT
+; Repository: https://github.com/sustentarea/foodclim
 ;
 ; Require NetLogo >= 6.4 and R >= 4.5.
 ; Required R packages: `rJava`, `stringr`, and `lubridate`.
 ; Required NetLogo extensions: `gis`, ls`,` `pathdir`, `sr`, and `string`.
 
 __includes [
-  "nls/utils.nls"
-  "nls/utils-checks.nls"
-  "nls/utils-plots.nls"
-  "nls/utils-strings.nls"
+  "nls/as-list.nls"
+  "nls/check-atomic.nls"
+  "nls/check-choice.nls"
+  "nls/check-false.nls"
+  "nls/check-integer.nls"
+  "nls/check-list.nls"
+  "nls/check-logical.nls"
+  "nls/check-string.nls"
+  "nls/check-string-or-integer.nls"
+  "nls/check-true.nls"
+  "nls/collapse.nls"
+  "nls/combine.nls"
+  "nls/compute-food-yield.nls"
+  "nls/compute-yield.nls"
+  "nls/go-back.nls"
+  "nls/list-to-c.nls"
+  "nls/lookup-food-group.nls"
+  "nls/normalize-value.nls"
+  "nls/normalize-year.nls"
+  "nls/num-to-str-month.nls"
+  "nls/parse-res-model-string.nls"
+  "nls/quartile.nls"
+  "nls/setup-logoclim.nls"
+  "nls/setup-patches.nls"
+  "nls/setup-stats.nls"
+  "nls/setup-variables.nls"
+  "nls/setup-world.nls"
+  "nls/show-values.nls"
+  "nls/single-quote.nls"
+  "nls/str-detect.nls"
+  "nls/str-extract.nls"
+  "nls/update-climate-vars.nls"
+  "nls/update-patches.nls"
 ]
 
 extensions [
@@ -36,7 +65,6 @@ globals [
   range-pxcor
   range-pycor
   patch-coordinates
-  seed
   tmin-ls-model
   tmax-ls-model
   prec-ls-model
@@ -48,6 +76,7 @@ globals [
   dairy-res-model
   flip-index ; To use with `flip-data-series?`.
   temp ; To use with `run`.
+  seed
 ]
 
 patches-own [
@@ -85,124 +114,6 @@ to setup [#seed]
   reset-ticks
 end
 
-to setup-logoclim
-  ifelse (interactive = true) [
-    ls:create-interactive-models 3 logoclim-path
-  ] [
-    ls:create-models 3 logoclim-path
-  ]
-
-  set tmin-ls-model 0
-  set tmax-ls-model 1
-  set prec-ls-model 2
-
-  ls:let #data-series data-series
-  ls:let #data-resolution data-resolution
-  ls:let #global-climate-model global-climate-model
-  ls:let #shared-socioeconomic-pathway shared-socioeconomic-pathway
-  ls:let #year start-year
-  ls:let #month start-month
-
-  ls:ask ls:models [
-    set data-series #data-series
-    set data-resolution #data-resolution
-    set global-climate-model #global-climate-model
-    set shared-socioeconomic-pathway #shared-socioeconomic-pathway
-    set start-year #year
-    set start-month #month
-  ]
-
-  ls:ask tmin-ls-model [
-    set climate-variable "Average minimum temperature (°C)"
-  ]
-
-  ls:ask tmax-ls-model [
-    set climate-variable "Average maximum temperature (°C)"
-  ]
-
-  ls:ask prec-ls-model [
-    set climate-variable "Total precipitation (mm)"
-  ]
-
-  ls:ask ls:models [setup]
-end
-
-to setup-world
-  let min-width [min-pxcor] ls:of tmin-ls-model
-  let max-width [max-pxcor] ls:of tmin-ls-model
-  let min-height [min-pycor] ls:of tmin-ls-model
-  let max-height [max-pycor] ls:of tmin-ls-model
-
-  resize-world min-width max-width min-height max-height
-  set-patch-size patch-px-size
-end
-
-to setup-variables
-  set index [index] ls:of tmin-ls-model
-  set range-pxcor (range min-pxcor (max-pxcor + 1))
-  set range-pycor (range min-pycor (max-pycor + 1))
-  set patch-coordinates combine range-pxcor range-pycor
-  set year [year] ls:of tmin-ls-model
-  set month [month] ls:of tmin-ls-model
-
-  set grains-res-model parse-res-model-string grains-response-model
-  set protein-res-model parse-res-model-string protein-response-model
-  set non-leafy-veg-res-model parse-res-model-string non-leafy-veg-response-model
-  set leafy-veg-res-model parse-res-model-string leafy-veg-response-model
-  set fruits-res-model parse-res-model-string fruits-response-model
-  set dairy-res-model parse-res-model-string dairy-response-model
-end
-
-to setup-patches
-  foreach (patch-coordinates) [
-    #i -> ask patch (first #i) (last #i) [
-      ls:let #i #i
-      set tmin [[value] of patch (first #i) (last #i)] ls:of tmin-ls-model
-      set tmax [[value] of patch (first #i) (last #i)] ls:of tmax-ls-model
-      set prec [[value] of patch (first #i) (last #i)] ls:of prec-ls-model
-      set latitude mean [[latitude] of patch (first #i) (last #i)] ls:of tmin-ls-model
-      set longitude mean [[longitude] of patch (first #i) (last #i)] ls:of tmin-ls-model
-
-      set value tmin
-      set grains-yield tmin
-      set protein-yield tmin
-      set non-leafy-veg-yield tmin
-      set leafy-veg-yield tmin
-      set fruits-yield tmin
-      set dairy-yield tmin
-    ]
-  ]
-
-  compute-yield
-  update-patches
-  update-colors
-end
-
-to setup-stats
-  set max-value max (list
-    max [grains-yield] of patches with [(value <= 0) or (value >= 0)]
-    max [protein-yield] of patches with [(value <= 0) or (value >= 0)]
-    max [non-leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]
-    max [leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]
-    max [fruits-yield] of patches with [(value <= 0) or (value >= 0)]
-    max [dairy-yield] of patches with [(value <= 0) or (value >= 0)]
-  )
-
-  set min-value min (list
-    min [grains-yield] of patches with [(value <= 0) or (value >= 0)]
-    min [protein-yield] of patches with [(value <= 0) or (value >= 0)]
-    min [non-leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]
-    min [leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]
-    min [fruits-yield] of patches with [(value <= 0) or (value >= 0)]
-    min [dairy-yield] of patches with [(value <= 0) or (value >= 0)]
-  )
-
-  ;set max-plot-y ceiling max-value
-  set min-plot-y ifelse-value (min-value < 0) [floor min-value] [0]
-  ;set min-plot-y floor ((quartile 1) - (6 * (quartile "iqr")))
-  set max-plot-y ceiling ((quartile 3) + (3 * (quartile "iqr")))
-end
-
 to go [#tick? #wait?]
   assert-logical #tick?
   assert-logical #wait?
@@ -211,7 +122,7 @@ to go [#tick? #wait?]
 
   if (month = [month] ls:of tmin-ls-model) [
     ifelse (
-      (flip-data-series? = true) and
+      (is-true? flip-data-series?) and
       ([data-series] ls:of tmin-ls-model != "Future climate data")
     ) [
       set flip-index index
@@ -240,236 +151,8 @@ to go [#tick? #wait?]
   compute-yield
   update-patches
 
-  set index [index] ls:of tmin-ls-model
-  set year [year] ls:of tmin-ls-model
-  set month [month] ls:of tmin-ls-model
-
-  update-climate-vars
-  compute-yield
-  update-patches
-
   if (#tick? = true) [tick]
   if (#wait? = true) [wait transition-seconds]
-end
-
-to go-back
-  ls:ask ls:models [go-back]
-
-  if (month = [month] ls:of tmin-ls-model) [
-    ifelse (
-      (flip-data-series? = true) and
-      ([data-series] ls:of tmin-ls-model = "Future climate data")
-    ) [
-      ls:let #index flip-index
-      ls:let #year start-year
-      ls:let #month start-month
-
-      ls:ask ls:models [
-        set data-series "Historical monthly weather data"
-        set start-year #year
-        set start-month #month
-
-        setup
-
-        set index #index
-        set year 2021
-        set month 12
-      ]
-    ] [
-      stop
-    ]
-  ]
-
-  set index [index] ls:of tmin-ls-model
-  set year [year] ls:of tmin-ls-model
-  set month [month] ls:of tmin-ls-model
-
-  update-climate-vars
-  compute-yield
-  update-patches
-end
-
-to update-climate-vars
-  foreach (patch-coordinates) [
-    #i -> ask patch (first #i) (last #i) [
-      ls:let #i #i
-      set tmin [[value] of patch (first #i) (last #i)] ls:of tmin-ls-model
-      set tmax [[value] of patch (first #i) (last #i)] ls:of tmax-ls-model
-      set prec [[value] of patch (first #i) (last #i)] ls:of prec-ls-model
-    ]
-  ]
-
-  ask patches with [(tmin <= 0) or (tmin >= 0)] [
-    set tmin tmin + raise-lower-tmin
-    set tmax tmax + raise-lower-tmax
-    set prec prec + raise-lower-prec
-  ]
-end
-
-to compute-yield
-  compute-food-yield "grains"
-  compute-food-yield "protein"
-  compute-food-yield "dairy"
-  compute-food-yield "non-leafy-veg"
-  compute-food-yield "leafy-veg"
-  compute-food-yield "fruits"
-end
-
-to compute-food-yield [#food]
-  ask patches with [
-    (runresult (word #food "-yield") <= 0) or
-    (runresult (word #food "-yield") >= 0)
-  ] [
-    let random-mult 1
-    let intercept runresult (word #food "-intercept")
-    let tmin-beta runresult (word #food "-tmin-beta")
-    let tmax-beta runresult (word #food "-tmax-beta")
-    let prec-beta runresult (word #food "-prec-beta")
-    let lat-beta runresult (word #food "-lat-beta")
-    let lon-beta runresult (word #food "-lon-beta")
-
-    if (add-random? = true) [
-      let random-threshold runresult (word #food "-" "random-threshold")
-      set random-mult random-float random-threshold
-
-      ifelse (random-float 1 < 0.5) [
-        set random-mult 1 - random-mult
-      ] [
-        set random-mult 1 + random-mult
-      ]
-    ]
-
-    ifelse (
-      ((tmin <= 0) or (tmin >= 0)) and
-      ((tmax <= 0) or (tmax >= 0)) and
-      ((prec <= 0) or (prec >= 0))
-     ) [
-      set temp (
-        intercept +
-        (tmin-beta * tmin) + (tmax-beta * tmax) + (prec-beta * prec) +
-        (lat-beta * latitude) + (lon-beta * longitude)
-      ) * random-mult
-
-      if (shock = true) [
-        set random-mult random-float shock-threshold
-        set temp temp * (1 - random-mult)
-      ]
-
-      if (temp < 0) [set temp 0]
-
-      run (word "set " #food "-yield temp")
-    ] [
-      set temp tmin
-
-      run (word "set " #food "-yield temp")
-    ]
-  ]
-end
-
-to update-patches
-  let food food-lookup world-view
-
-  ask patches with [(value <= 0) or (value >= 0)] [
-    run (word "set value " food "-yield")
-  ]
-
-  update-colors
-end
-
-to update-colors
-  let food-color lime
-
-  (ifelse
-    (world-view = "Grains") [
-    set food-color orange
-  ] (world-view = "Protein") [
-    set food-color violet
-  ] (world-view = "Non-leafy vegetables") [
-    set food-color lime
-  ] (world-view = "Leafy vegetables") [
-    set food-color turquoise
-  ] (world-view = "Fruits") [
-    set food-color red
-  ] (world-view = "Dairy") [
-    set food-color blue
-  ] [
-    user-message "Invalid value in `world-view`."
-  ])
-
-  ifelse (white-max = true) [
-    set max-value max [value] of patches with [(value <= 0) or (value >= 0)]
-  ] [
-    set max-value white-value
-  ]
-
-  ifelse (black-min = true) [
-    set min-value min [value] of patches with [(value <= 0) or (value >= 0)]
-  ] [
-    set min-value black-value
-  ]
-
-  ask (patches) [
-    ifelse ((value <= 0) or (value >= 0)) [
-      set pcolor scale-color food-color value min-value max-value
-    ] [
-      set pcolor background-color
-    ]
-  ]
-end
-
-to-report food-lookup [#string]
-  assert-string #string
-
-  (ifelse
-    (#string = "Grains") [report "grains"]
-    (#string = "Protein") [report "protein"]
-    (#string = "Dairy") [report "dairy"]
-    (#string = "Non-leafy vegetables") [report "non-leafy-veg"]
-    (#string = "Leafy vegetables") [report "leafy-veg"]
-    (#string = "Fruits") [report "fruits"]
-    [
-      user-message (word
-        "The value '" #string  "' was not found."
-      )
-    ]
-  )
-end
-
-to-report combine [#list-1 #list-2]
-  report ( reduce sentence ( map [ i -> map [ j -> list i j ] #list-2 ] #list-1 ))
-end
-
-to show-values
-  ifelse mouse-inside? [
-    ask patch mouse-xcor mouse-ycor [
-      let radius-mean round mean [pcolor] of patches in-radius 3
-      let color-shade radius-mean - (precision radius-mean -1)
-
-      ifelse (color-shade < 0) [
-        set plabel-color black
-      ] [
-        set plabel-color white
-      ]
-
-      carefully [
-        set plabel precision value 2
-      ] [
-        set plabel value
-      ]
-    ]
-
-    ask other patches who-are-not patch mouse-xcor mouse-ycor [
-      set plabel ""
-    ]
-  ] [
-    ask patches [set plabel ""]
-  ]
-end
-
-to-report parse-res-model-string [#string]
-  assert-string #string
-
-  report 0
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -767,8 +450,8 @@ SWITCH
 166
 440
 199
-interactive
-interactive
+interactive?
+interactive?
 1
 1
 -1000
@@ -870,7 +553,7 @@ MONITOR
 1230
 55
 Month
-month-monitor month
+ifelse-value (is-integer? month) [num-to-str-month month] [month]
 0
 1
 11
@@ -1718,8 +1401,6 @@ You are currently using the developer version of `FoodClim`.
 
 - Fix interface proportions.
 - Implmenent string response functions.
-- Separate util functions.
-- Reveise and refactor code.
 
 ## HOW TO USE IT
 

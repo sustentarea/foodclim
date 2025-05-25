@@ -1,0 +1,59 @@
+; __includes ["check-true.nls"]
+; extensions [ls]
+
+; globals [
+;   prec-ls-model
+;   tmax-ls-model
+;   tmin-ls-model
+;   data-series
+;   data-resolution
+;   global-climate-model
+;   shared-socioeconomic-pathway
+;   start-year
+;   start-month
+;   interactive?
+;   logoclim-path
+; ]
+
+
+to setup-logoclim
+  ifelse (is-true? interactive?) [
+    ls:create-interactive-models 3 logoclim-path
+  ] [
+    ls:create-models 3 logoclim-path
+  ]
+
+  set tmin-ls-model 0
+  set tmax-ls-model 1
+  set prec-ls-model 2
+
+  ls:let #data-series data-series
+  ls:let #data-resolution data-resolution
+  ls:let #global-climate-model global-climate-model
+  ls:let #shared-socioeconomic-pathway shared-socioeconomic-pathway
+  ls:let #year start-year
+  ls:let #month start-month
+
+  ls:ask ls:models [
+    set data-series #data-series
+    set data-resolution #data-resolution
+    set global-climate-model #global-climate-model
+    set shared-socioeconomic-pathway #shared-socioeconomic-pathway
+    set start-year #year
+    set start-month #month
+  ]
+
+  ls:ask tmin-ls-model [
+    set climate-variable "Average minimum temperature (°C)"
+  ]
+
+  ls:ask tmax-ls-model [
+    set climate-variable "Average maximum temperature (°C)"
+  ]
+
+  ls:ask prec-ls-model [
+    set climate-variable "Total precipitation (mm)"
+  ]
+
+  ls:ask ls:models [setup]
+end

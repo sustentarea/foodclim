@@ -1,0 +1,45 @@
+; __includes ["compute-yield.nls" "update-patches.nls"]
+
+; patches-own [
+;   value
+;   tmin
+;   tmax
+;   prec
+;   latitude
+;   longitude
+;   grains-yield
+;   protein-yield
+;   non-leafy-veg-yield
+;   leafy-veg-yield
+;   fruits-yield
+;   dairy-yield
+; ]
+
+to setup-patches
+  foreach (patch-coordinates) [
+    #i -> ask patch (first #i) (last #i) [
+      ls:let #i #i
+      set tmin [[value] of patch (first #i) (last #i)] ls:of tmin-ls-model
+      set tmax [[value] of patch (first #i) (last #i)] ls:of tmax-ls-model
+      set prec [[value] of patch (first #i) (last #i)] ls:of prec-ls-model
+
+      set latitude mean (
+        [[latitude] of patch (first #i) (last #i)] ls:of tmin-ls-model
+      )
+      set longitude mean (
+        [[longitude] of patch (first #i) (last #i)] ls:of tmin-ls-model
+      )
+
+      set value tmin
+      set grains-yield tmin
+      set protein-yield tmin
+      set non-leafy-veg-yield tmin
+      set leafy-veg-yield tmin
+      set fruits-yield tmin
+      set dairy-yield tmin
+    ]
+  ]
+
+  compute-yield
+  update-patches
+end
