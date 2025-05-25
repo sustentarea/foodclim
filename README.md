@@ -18,8 +18,9 @@ MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://choosealicense
 
 `FoodClim` is a [NetLogo](https://ccl.northwestern.edu/netlogo/) model
 designed to simulate how food yield responds to different climate
-conditions. It aims to support empirically-based agent-based on food
-systems and enhance the reproducibility of their simulations.
+conditions. It aims to support empirically-based agent-based models
+(ABM) on food systems and enhance the reproducibility of their
+simulations.
 
 The model runs in paralel with the
 [`LogoClim`](https://github.com/sustentarea/logoclim) model, which
