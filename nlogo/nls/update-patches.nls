@@ -1,6 +1,7 @@
 ; __includes ["check-true.nls" "lookup-food-group.nls"]
 
 ; globals [
+;   month
 ;   background-color
 ;   black-min
 ;   black-value
@@ -14,8 +15,10 @@
 to update-patches
   let food lookup-food-group world-view
 
-  ask patches with [(value <= 0) or (value >= 0)] [
+  ask patches [
     run (word "set value " food "-yield")
+    run (word "set value-baseline " food "-yield-baseline-" month)
+    run (word "set value-baseline-rel " food "-yield-baseline-rel")
   ]
 
   let food-color lime

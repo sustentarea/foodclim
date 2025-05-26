@@ -3,5 +3,5 @@
 to-report parse-res-model-string [#string]
   assert-string #string
 
-  report 0
+  report str-remove-all #string "#"
 end

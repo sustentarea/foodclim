@@ -1,0 +1,26 @@
+; __includes ["check-true.nls" "halt.nls" "single-quote.nls"]
+; globals [data-series flip-index? tmin-ls-model]
+
+to assert-tick-window [#min-ticks]
+  let tick-length length [years] ls:of tmin-ls-model
+
+  if (
+    (is-true? flip-data-series?) and
+    (data-series = "Historical monthly weather data") and
+    (tick-length < #min-ticks)
+  ) [
+    user-message (word
+      "When using `flip-index?` with the "
+      single-quote data-series " "
+      "series, the minimum number of months between the start "
+      "and end of the series must be at least "
+      #min-ticks
+      " months. "
+      "There is only "
+      tick-length
+      " months available in the series."
+    )
+
+    halt
+  ]
+end

@@ -1,0 +1,7 @@
+; __includes ["check-string.nls" "str-replace-all.nls"]
+
+to-report str-remove-all [#x #pattern]
+  assert-string #pattern
+
+  report str-replace-all #x #pattern ""
+end

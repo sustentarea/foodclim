@@ -11,20 +11,21 @@
 ; ]
 
 to setup-stats
-  let yield-data (sentence
-    [grains-yield] of patches with [(value <= 0) or (value >= 0)]
-    [protein-yield] of patches with [(value <= 0) or (value >= 0)]
-    [non-leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]
-    [leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]
-    [fruits-yield] of patches with [(value <= 0) or (value >= 0)]
-    [dairy-yield] of patches with [(value <= 0) or (value >= 0)]
+  let yield-data (list
+    log mean [grains-yield] of patches with [(value <= 0) or (value >= 0)] 10
+    log mean [protein-yield] of patches with [(value <= 0) or (value >= 0)] 10
+    log mean [non-leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)] 10
+    log mean [leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)] 10
+    log mean [fruits-yield] of patches with [(value <= 0) or (value >= 0)] 10
+    log mean [dairy-yield] of patches with [(value <= 0) or (value >= 0)] 10
   )
 
   set max-value max yield-data
   set min-value min yield-data
 
-  set min-plot-y ifelse-value (min-value < 0) [floor min-value] [0]
-  set max-plot-y ceiling (
-    (quartile yield-data 3) + (3 * (quartile yield-data "iqr"))
-  )
+  set min-plot-y ifelse-value (
+    (min-value < 0) or ((floor min-value - 1) < 0)
+  ) [1] [floor min-value - 1]
+  
+  set max-plot-y ceiling max-value + 1
 end

@@ -13,11 +13,14 @@
 __includes [
   "nls/as-list.nls"
   "nls/check-atomic.nls"
+  "nls/check-between.nls"
   "nls/check-choice.nls"
   "nls/check-false.nls"
   "nls/check-integer.nls"
   "nls/check-list.nls"
   "nls/check-logical.nls"
+  "nls/check-number.nls"
+  "nls/check-tick-window.nls"
   "nls/check-string.nls"
   "nls/check-string-or-integer.nls"
   "nls/check-true.nls"
@@ -25,7 +28,9 @@ __includes [
   "nls/combine.nls"
   "nls/compute-food-yield.nls"
   "nls/compute-yield.nls"
+  "nls/compute-yield-baseline.nls"
   "nls/go-back.nls"
+  "nls/halt.nls"
   "nls/list-to-c.nls"
   "nls/lookup-food-group.nls"
   "nls/normalize-value.nls"
@@ -33,6 +38,7 @@ __includes [
   "nls/num-to-str-month.nls"
   "nls/parse-res-model-string.nls"
   "nls/quartile.nls"
+  "nls/raise-lower-patch-value.nls"
   "nls/setup-logoclim.nls"
   "nls/setup-patches.nls"
   "nls/setup-stats.nls"
@@ -42,6 +48,8 @@ __includes [
   "nls/single-quote.nls"
   "nls/str-detect.nls"
   "nls/str-extract.nls"
+  "nls/str-remove-all.nls"
+  "nls/str-replace-all.nls"
   "nls/update-climate-vars.nls"
   "nls/update-patches.nls"
 ]
@@ -58,6 +66,7 @@ globals [
   index
   month
   year
+  baseline-period
   max-value
   min-value
   min-plot-y
@@ -68,12 +77,12 @@ globals [
   tmin-ls-model
   tmax-ls-model
   prec-ls-model
-  grains-res-model
-  protein-res-model
-  non-leafy-veg-res-model
-  leafy-veg-res-model
-  fruits-res-model
-  dairy-res-model
+  intercept
+  tmin-beta
+  tmax-beta
+  prec-beta
+  lat-beta
+  lon-beta
   flip-index ; To use with `flip-data-series?`.
   temp ; To use with `run`.
   seed
@@ -81,24 +90,104 @@ globals [
 
 patches-own [
   value
+  value-baseline
+  value-baseline-rel
   tmin
   tmax
   prec
   latitude
   longitude
   grains-yield
+  grains-yield-baseline-1
+  grains-yield-baseline-2
+  grains-yield-baseline-3
+  grains-yield-baseline-4
+  grains-yield-baseline-5
+  grains-yield-baseline-6
+  grains-yield-baseline-7
+  grains-yield-baseline-8
+  grains-yield-baseline-9
+  grains-yield-baseline-10
+  grains-yield-baseline-11
+  grains-yield-baseline-12
+  grains-yield-baseline-rel
   protein-yield
-  non-leafy-veg-yield
-  leafy-veg-yield
-  fruits-yield
+  protein-yield-baseline-1
+  protein-yield-baseline-2
+  protein-yield-baseline-3
+  protein-yield-baseline-4
+  protein-yield-baseline-5
+  protein-yield-baseline-6
+  protein-yield-baseline-7
+  protein-yield-baseline-8
+  protein-yield-baseline-9
+  protein-yield-baseline-10
+  protein-yield-baseline-11
+  protein-yield-baseline-12
+  protein-yield-baseline-rel
   dairy-yield
+  dairy-yield-baseline-1
+  dairy-yield-baseline-2
+  dairy-yield-baseline-3
+  dairy-yield-baseline-4
+  dairy-yield-baseline-5
+  dairy-yield-baseline-6
+  dairy-yield-baseline-7
+  dairy-yield-baseline-8
+  dairy-yield-baseline-9
+  dairy-yield-baseline-10
+  dairy-yield-baseline-11
+  dairy-yield-baseline-12
+  dairy-yield-baseline-rel
+  non-leafy-veg-yield
+  non-leafy-veg-yield-baseline-1
+  non-leafy-veg-yield-baseline-2
+  non-leafy-veg-yield-baseline-3
+  non-leafy-veg-yield-baseline-4
+  non-leafy-veg-yield-baseline-5
+  non-leafy-veg-yield-baseline-6
+  non-leafy-veg-yield-baseline-7
+  non-leafy-veg-yield-baseline-8
+  non-leafy-veg-yield-baseline-9
+  non-leafy-veg-yield-baseline-10
+  non-leafy-veg-yield-baseline-11
+  non-leafy-veg-yield-baseline-12
+  non-leafy-veg-yield-baseline-rel
+  leafy-veg-yield
+  leafy-veg-yield-baseline-1
+  leafy-veg-yield-baseline-2
+  leafy-veg-yield-baseline-3
+  leafy-veg-yield-baseline-4
+  leafy-veg-yield-baseline-5
+  leafy-veg-yield-baseline-6
+  leafy-veg-yield-baseline-7
+  leafy-veg-yield-baseline-8
+  leafy-veg-yield-baseline-9
+  leafy-veg-yield-baseline-10
+  leafy-veg-yield-baseline-11
+  leafy-veg-yield-baseline-12
+  leafy-veg-yield-baseline-rel
+  fruits-yield
+  fruits-yield-baseline-1
+  fruits-yield-baseline-2
+  fruits-yield-baseline-3
+  fruits-yield-baseline-4
+  fruits-yield-baseline-5
+  fruits-yield-baseline-6
+  fruits-yield-baseline-7
+  fruits-yield-baseline-8
+  fruits-yield-baseline-9
+  fruits-yield-baseline-10
+  fruits-yield-baseline-11
+  fruits-yield-baseline-12
+  fruits-yield-baseline-rel
 ]
 
 to setup [#seed]
   clear-all
 
   set seed #seed
-  random-seed #seed
+  random-seed seed
 
   ls:reset
   sr:setup
@@ -106,6 +195,7 @@ to setup [#seed]
   set start-year normalize-year start-year
 
   setup-logoclim
+  assert-tick-window 12
   setup-world
   setup-variables
   setup-patches
@@ -149,6 +239,7 @@ to go [#tick? #wait?]
 
   update-climate-vars
   compute-yield
+  if ((index < 12) and (flip-index = 0)) [compute-yield-baseline]
   update-patches
 
   if (#tick? = true) [tick]
@@ -184,77 +275,62 @@ Months
 
 SLIDER
 10
-730
-220
-763
+770
+222
+803
 grains-intercept
 grains-intercept
--100
+-100000
+100000
+5900.0
 100
-71.8
-0.1
 1
-NIL
+kg/ha
 HORIZONTAL
 
 SLIDER
 10
-768
+805
 220
-801
+838
 grains-tmin-beta
 grains-tmin-beta
--10
-10
--2.1
-0.1
+-10000
+10000
+1500.0
 1
-NIL
+1
+kg/ha per °C
 HORIZONTAL
 
 SLIDER
 10
-806
+840
 220
-839
+873
 grains-tmax-beta
 grains-tmax-beta
--10
-10
--3.5
-0.1
+-10000
+10000
+-1000.0
 1
-NIL
+1
+kg/ha per °C
 HORIZONTAL
 
 SLIDER
 10
-844
+880
 220
-877
+913
 grains-prec-beta
 grains-prec-beta
--10
-10
-4.77
-0.01
+-1000
+1000
+20.0
 1
-NIL
-HORIZONTAL
-
-SLIDER
-10
-882
-220
-915
-grains-lat-beta
-grains-lat-beta
--10
-5
--7.69
-0.01
 1
-NIL
+kg/ha per mm
 HORIZONTAL
 
 SLIDER
@@ -262,14 +338,14 @@ SLIDER
 920
 220
 953
-grains-lon-beta
-grains-lon-beta
--10
-10
--8.4
-0.1
+grains-lat-beta
+grains-lat-beta
+-10000
+10000
+-200.0
 1
-NIL
+1
+kg/ha per deg.
 HORIZONTAL
 
 SLIDER
@@ -277,21 +353,36 @@ SLIDER
 960
 220
 993
+grains-lon-beta
+grains-lon-beta
+-10000
+10000
+50.0
+1
+1
+kg/ha per deg.
+HORIZONTAL
+
+SLIDER
+10
+1000
+220
+1033
 grains-random-threshold
 grains-random-threshold
 0
 1
-0.25
+0.2
 0.1
 1
 NIL
 HORIZONTAL
 
 SWITCH
-455
-505
-665
-538
+10
+465
+220
+498
 add-random?
 add-random?
 0
@@ -314,7 +405,7 @@ INPUTBOX
 220
 320
 start-year
-2020.0
+2016.0
 1
 0
 Number
@@ -565,86 +656,88 @@ PLOT
 240
 Kilogram per Hectare (Mean)
 Months
-Value
+log10
 0.0
 0.0
 0.0
 0.0
 true
 true
-"set-plot-y-range min-plot-y max-plot-y" ""
+"set-plot-y-range min-plot-y max-plot-y" "set-plot-x-range 0 (ifelse-value (ticks = 0) [1] [ceiling (ticks * 1.25)])"
 PENS
-"Grains" 1.0 0 -955883 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color orange + 3\n]\n\nplot mean [grains-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Protein" 1.0 0 -8630108 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color violet + 3\n]\n\nplot mean [protein-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Dairy" 1.0 0 -13345367 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color blue + 3\n]\n\nplot mean [dairy-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Non-leafy veg." 1.0 0 -13840069 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color lime + 3\n]\n\nplot mean [non-leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Leafy veg." 1.0 0 -14835848 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color turquoise + 3\n]\n\nplot mean [leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Fruits" 1.0 0 -2674135 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color red + 3\n]\n\nplot mean [fruits-yield] of patches with [(value <= 0) or (value >= 0)]"
-
-MONITOR
-1020
-430
-1230
-475
-Mean (world-view)
-mean [value] of patches with [(value <= 0) or (value >= 0)]
-10
-1
-11
+"Grains" 1.0 0 -955883 true "" "let pen-color orange\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [grains-yield] of patches with [(value <= 0) or (value >= 0)]) 10"
+"Protein" 1.0 0 -8630108 true "" "let pen-color violet\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [protein-yield] of patches with [(value <= 0) or (value >= 0)]) 10"
+"Dairy" 1.0 0 -13345367 true "" "let pen-color blue\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [dairy-yield] of patches with [(value <= 0) or (value >= 0)]) 10"
+"Non-leafy veg." 1.0 0 -13840069 true "" "let pen-color lime\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [non-leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]) 10"
+"Leafy veg." 1.0 0 -14835848 true "" "let pen-color turquoise\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]) 10"
+"Fruits" 1.0 0 -2674135 true "" "let pen-color red\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [fruits-yield] of patches with [(value <= 0) or (value >= 0)]) 10"
+"(Year indicator)" 1.0 0 -16777216 false "" "ifelse (\n  (start-month = num-to-str-month month) or\n  ((index = 1) and (flip-index = 0))\n) [\n  set-plot-pen-color black\n] [\n  set-plot-pen-color white\n]\n\nplot min-plot-y"
 
 MONITOR
 1020
 480
 1230
 525
+Mean (world-view)
+mean [value] of patches with [(value <= 0) or (value >= 0)]
+5
+1
+11
+
+MONITOR
+1020
+530
+1230
+575
 Minimum (world-view)
 min [value] of patches with [(value <= 0) or (value >= 0)]
-10
+5
 1
 11
 
 PLOT
 1020
-245
-1450
-425
-Kilogram per Hectare (Standard Deviation)
-Months
-Value
-0.0
-0.0
-0.0
-0.0
-true
-true
-"set-plot-y-range min-plot-y max-plot-y" ""
-PENS
-"Grains" 1.0 0 -955883 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color orange + 3\n]\n\nplot standard-deviation [grains-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Protein" 1.0 0 -8630108 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color violet + 3\n]\n\nplot standard-deviation [protein-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Dairy" 1.0 0 -13345367 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color blue + 3\n]\n\nplot standard-deviation [dairy-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Non-leafy veg." 1.0 0 -13840069 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color lime + 3\n]\n\nplot standard-deviation [non-leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Leafy veg." 1.0 0 -14835848 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color turquoise + 3\n]\n\nplot standard-deviation [leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]"
-"Fruits" 1.0 0 -2674135 true "" "if (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color red + 3\n]\n\nplot standard-deviation [fruits-yield] of patches with [(value <= 0) or (value >= 0)]"
-
-MONITOR
-1240
-430
+295
 1450
 475
-Standard deviation (world-view)
-standard-deviation [value] of patches with [(value <= 0) or (value >= 0)]
-10
-1
-11
+Relative Yield (Mean)
+Months
+yield / base.
+0.0
+0.0
+0.0
+0.0
+true
+true
+"set-plot-y-range 0 2" "set-plot-x-range 0 (ifelse-value (ticks = 0) [1] [ceiling (ticks * 1.25)])"
+PENS
+"Grains" 1.0 0 -955883 true "" "let pen-color orange\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [grains-yield-baseline-rel] of patches with [(value <= 0) or (value >= 0)]"
+"Protein" 1.0 0 -8630108 true "" "let pen-color violet\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [protein-yield-baseline-rel] of patches with [(value <= 0) or (value >= 0)]"
+"Dairy" 1.0 0 -13345367 true "" "let pen-color blue\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [dairy-yield-baseline-rel] of patches with [(value <= 0) or (value >= 0)]"
+"Non-leafy veg." 1.0 0 -13840069 true "" "let pen-color lime\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [non-leafy-veg-yield-baseline-rel] of patches with [(value <= 0) or (value >= 0)]"
+"Leafy veg." 1.0 0 -14835848 true "" "let pen-color turquoise\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [leafy-veg-yield-baseline-rel] of patches with [(value <= 0) or (value >= 0)]"
+"Fruits" 1.0 0 -2674135 true "" "let pen-color red\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [fruits-yield-baseline-rel] of patches with [(value <= 0) or (value >= 0)]"
+"(Year indicator)" 1.0 0 -16777216 false "" "ifelse (\n  (start-month = num-to-str-month month) or\n  ((index = 1) and (flip-index = 0))\n) [\n  set-plot-pen-color black\n] [\n  set-plot-pen-color white\n]\n\nplot 0"
 
 MONITOR
 1240
 480
 1450
 525
+Standard deviation (world-view)
+standard-deviation [value] of patches with [(value <= 0) or (value >= 0)]
+5
+1
+11
+
+MONITOR
+1240
+530
+1450
+575
 Maximum (world-view)
 max [value] of patches with [(value <= 0) or (value >= 0)]
-10
+5
 1
 11
 
@@ -689,10 +782,10 @@ shared-socioeconomic-pathway
 3
 
 TEXTBOX
-580
-600
-870
-620
+585
+635
+875
+655
 Parameters for Food Group Yield Response
 14
 0.0
@@ -700,17 +793,17 @@ Parameters for Food Group Yield Response
 
 SLIDER
 255
-730
+770
 465
-763
+803
 protein-intercept
 protein-intercept
--100
-100
-26.7
-0.1
+-100000
+100000
+1200.0
 1
-NIL
+1
+kg/ha
 HORIZONTAL
 
 CHOOSER
@@ -725,32 +818,17 @@ world-view
 
 SLIDER
 255
-770
-465
-803
-protein-tmin-beta
-protein-tmin-beta
--10
-10
-3.6
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-255
 810
 465
 843
-protein-tmax-beta
-protein-tmax-beta
--10
-10
-0.4
-0.1
+protein-tmin-beta
+protein-tmin-beta
+-10000
+10000
+80.0
 1
-NIL
+1
+kg/ha per °C
 HORIZONTAL
 
 SLIDER
@@ -758,14 +836,14 @@ SLIDER
 850
 465
 883
-protein-prec-beta
-protein-prec-beta
--10
-10
-4.2
-0.1
+protein-tmax-beta
+protein-tmax-beta
+-10000
+10000
+-100.0
 1
-NIL
+1
+kg/ha per °C
 HORIZONTAL
 
 SLIDER
@@ -773,266 +851,266 @@ SLIDER
 885
 465
 918
-protein-lat-beta
-protein-lat-beta
--10
-10
-0.8
-0.1
+protein-prec-beta
+protein-prec-beta
+-1000
+1000
+15.0
 1
-NIL
+1
+kg/ha per mm
 HORIZONTAL
 
 SLIDER
 255
-920
-465
-953
-protein-lon-beta
-protein-lon-beta
--10
-10
-0.6
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-255
-960
-465
-993
-protein-random-threshold
-protein-random-threshold
-0
-1
-0.25
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-755
-730
-965
-763
-non-leafy-veg-intercept
-non-leafy-veg-intercept
-0
-100
-33.4
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-755
-770
-965
-803
-non-leafy-veg-tmin-beta
-non-leafy-veg-tmin-beta
-0
-10
-2.2
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-755
-810
-965
-843
-non-leafy-veg-tmax-beta
-non-leafy-veg-tmax-beta
-0
-10
-1.8
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-755
-850
-965
-883
-non-leafy-veg-prec-beta
-non-leafy-veg-prec-beta
-0
-10
-3.0
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-755
-885
-965
-918
-non-leafy-veg-lat-beta
-non-leafy-veg-lat-beta
-0
-10
-0.8
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-755
-920
-965
-953
-non-leafy-veg-lon-beta
-non-leafy-veg-lon-beta
-0
-10
-0.7
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-755
-960
-965
-993
-non-leafy-veg-random-threshold
-non-leafy-veg-random-threshold
-0
-1
-0.25
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-995
-730
-1205
-763
-leafy-veg-intercept
-leafy-veg-intercept
-0
-100
-68.7
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-995
-770
-1205
-803
-leafy-veg-tmin-beta
-leafy-veg-tmin-beta
-0
-10
-0.0
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-995
-810
-1205
-843
-leafy-veg-tmax-beta
-leafy-veg-tmax-beta
-0
-10
-2.3
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-995
-850
-1205
-883
-leafy-veg-prec-beta
-leafy-veg-prec-beta
-0
-10
-8.7
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-995
-890
-1205
-923
-leafy-veg-lat-beta
-leafy-veg-lat-beta
-0
-10
-2.7
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-995
 925
-1205
+465
 958
-leafy-veg-lon-beta
-leafy-veg-lon-beta
-0
-10
-1.1
-0.1
+protein-lat-beta
+protein-lat-beta
+-10000
+10000
+-20.0
 1
-NIL
+1
+kg/ha per deg.
 HORIZONTAL
 
 SLIDER
-995
-960
-1205
-993
-leafy-veg-random-threshold
-leafy-veg-random-threshold
-0
-1
-0.25
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-1240
-730
-1450
-763
-fruits-intercept
-fruits-intercept
-0
-100
+255
+965
+465
+998
+protein-lon-beta
+protein-lon-beta
+-10000
+10000
 10.0
+1
+1
+kg/ha per deg.
+HORIZONTAL
+
+SLIDER
+255
+1000
+465
+1033
+protein-random-threshold
+protein-random-threshold
+0
+1
+0.3
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+755
+770
+965
+803
+non-leafy-veg-intercept
+non-leafy-veg-intercept
+-100000
+100000
+70000.0
+0.1
+1
+kg/ha
+HORIZONTAL
+
+SLIDER
+755
+810
+965
+843
+non-leafy-veg-tmin-beta
+non-leafy-veg-tmin-beta
+-10000
+10000
+3000.0
+1
+1
+kg/ha per °C
+HORIZONTAL
+
+SLIDER
+755
+850
+965
+883
+non-leafy-veg-tmax-beta
+non-leafy-veg-tmax-beta
+-10000
+10000
+-2500.0
+1
+1
+kg/ha per °C
+HORIZONTAL
+
+SLIDER
+755
+890
+965
+923
+non-leafy-veg-prec-beta
+non-leafy-veg-prec-beta
+-1000
+1000
+60.0
+1
+1
+kg/ha per mm
+HORIZONTAL
+
+SLIDER
+755
+925
+965
+958
+non-leafy-veg-lat-beta
+non-leafy-veg-lat-beta
+-10000
+10000
+-500.0
+1
+1
+kg/ha per deg.
+HORIZONTAL
+
+SLIDER
+755
+960
+965
+993
+non-leafy-veg-lon-beta
+non-leafy-veg-lon-beta
+-10000
+10000
+100.0
+1
+1
+kg/ha per deg.
+HORIZONTAL
+
+SLIDER
+755
+1000
+965
+1033
+non-leafy-veg-random-threshold
+non-leafy-veg-random-threshold
+0
+1
+0.25
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+995
+770
+1205
+803
+leafy-veg-intercept
+leafy-veg-intercept
+-100000
+100000
+35000.0
+0.1
+1
+kg/ha
+HORIZONTAL
+
+SLIDER
+995
+810
+1205
+843
+leafy-veg-tmin-beta
+leafy-veg-tmin-beta
+-10000
+10000
+1500.0
+1
+1
+kg/ha per °C
+HORIZONTAL
+
+SLIDER
+995
+850
+1205
+883
+leafy-veg-tmax-beta
+leafy-veg-tmax-beta
+-10000
+10000
+-1200.0
+1
+1
+kg/ha per °C
+HORIZONTAL
+
+SLIDER
+995
+890
+1205
+923
+leafy-veg-prec-beta
+leafy-veg-prec-beta
+-1000
+1000
+40.0
+1
+1
+kg/ha per mm
+HORIZONTAL
+
+SLIDER
+995
+930
+1205
+963
+leafy-veg-lat-beta
+leafy-veg-lat-beta
+-10000
+10000
+-300.0
+1
+1
+kg/ha per deg.
+HORIZONTAL
+
+SLIDER
+995
+965
+1205
+998
+leafy-veg-lon-beta
+leafy-veg-lon-beta
+-10000
+10000
+50.0
+1
+1
+kg/ha per deg.
+HORIZONTAL
+
+SLIDER
+995
+1000
+1205
+1033
+leafy-veg-random-threshold
+leafy-veg-random-threshold
+0
+1
+0.3
 0.1
 1
 NIL
@@ -1043,14 +1121,14 @@ SLIDER
 770
 1450
 803
-fruits-tmin-beta
-fruits-tmin-beta
-0
-10
-1.4
+fruits-intercept
+fruits-intercept
+-100000
+100000
+20000.0
 0.1
 1
-NIL
+kg/ha
 HORIZONTAL
 
 SLIDER
@@ -1058,14 +1136,14 @@ SLIDER
 810
 1450
 843
-fruits-tmax-beta
-fruits-tmax-beta
-0
-10
-1.9
-0.1
+fruits-tmin-beta
+fruits-tmin-beta
+-10000
+10000
+2000.0
 1
-NIL
+1
+kg/ha per °C
 HORIZONTAL
 
 SLIDER
@@ -1073,14 +1151,14 @@ SLIDER
 850
 1450
 883
-fruits-prec-beta
-fruits-prec-beta
-0
-10
-3.2
-0.1
+fruits-tmax-beta
+fruits-tmax-beta
+-10000
+10000
+-500.0
 1
-NIL
+1
+kg/ha per °C
 HORIZONTAL
 
 SLIDER
@@ -1088,56 +1166,56 @@ SLIDER
 890
 1450
 923
-fruits-lat-beta
-fruits-lat-beta
-0
-10
-0.6
-0.1
+fruits-prec-beta
+fruits-prec-beta
+-1000
+1000
+80.0
 1
-NIL
+1
+kg/ha per mm
 HORIZONTAL
 
 SLIDER
 1240
-925
+930
 1450
-958
-fruits-lon-beta
-fruits-lon-beta
-0
-10
-5.6
-0.1
+963
+fruits-lat-beta
+fruits-lat-beta
+-10000
+10000
+-400.0
 1
-NIL
+1
+kg/ha per deg.
 HORIZONTAL
 
 SLIDER
 1240
-960
+965
 1450
-993
-fruits-random-threshold
-fruits-random-threshold
-0
+998
+fruits-lon-beta
+fruits-lon-beta
+-10000
+10000
+100.0
 1
-0.25
-0.1
 1
-NIL
+kg/ha per deg.
 HORIZONTAL
 
 SLIDER
-505
-730
-715
-763
-dairy-intercept
-dairy-intercept
+1240
+1000
+1450
+1033
+fruits-random-threshold
+fruits-random-threshold
 0
-100
-45.0
+1
+0.2
 0.1
 1
 NIL
@@ -1148,14 +1226,14 @@ SLIDER
 770
 715
 803
-dairy-tmin-beta
-dairy-tmin-beta
-0
-10
-3.75
+dairy-intercept
+dairy-intercept
+-100000
+100000
+6000.0
 0.1
 1
-NIL
+kg/ha
 HORIZONTAL
 
 SLIDER
@@ -1163,14 +1241,14 @@ SLIDER
 810
 715
 843
-dairy-tmax-beta
-dairy-tmax-beta
-0
-10
-3.8
-0.1
+dairy-tmin-beta
+dairy-tmin-beta
+-10000
+10000
+200.0
 1
-NIL
+1
+kg/ha per °C
 HORIZONTAL
 
 SLIDER
@@ -1178,44 +1256,44 @@ SLIDER
 850
 715
 883
-dairy-prec-beta
-dairy-prec-beta
-0
-10
-6.5
-0.1
+dairy-tmax-beta
+dairy-tmax-beta
+-10000
+10000
+-300.0
 1
-NIL
+1
+kg/ha per °C
 HORIZONTAL
 
 SLIDER
 505
-885
+890
 715
-918
-dairy-lat-beta
-dairy-lat-beta
-0
-10
-2.6
-0.1
+923
+dairy-prec-beta
+dairy-prec-beta
+-1000
+1000
+25.0
 1
-NIL
+1
+kg/ha per mm
 HORIZONTAL
 
 SLIDER
 505
-920
+925
 715
-953
-dairy-lon-beta
-dairy-lon-beta
-0
-10
-5.6
-0.1
+958
+dairy-lat-beta
+dairy-lat-beta
+-10000
+10000
+-30.0
 1
-NIL
+1
+kg/ha per deg.
 HORIZONTAL
 
 SLIDER
@@ -1223,6 +1301,21 @@ SLIDER
 960
 715
 993
+dairy-lon-beta
+dairy-lon-beta
+-10000
+10000
+10.0
+1
+1
+kg/ha per deg.
+HORIZONTAL
+
+SLIDER
+505
+1000
+715
+1033
 dairy-random-threshold
 dairy-random-threshold
 0
@@ -1234,10 +1327,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-795
-505
-1005
-538
+10
+540
+220
+573
 shock-threshold
 shock-threshold
 0
@@ -1250,66 +1343,66 @@ HORIZONTAL
 
 INPUTBOX
 10
-640
+680
 220
-725
-grains-response-model
-#yield = #intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#latitude-beta * #latituude) + (#longitude-beta * #longitude)
+765
+grains-yield-response-model
+#intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#lat-beta * #latitude) + (#lon-beta * #longitude)
 1
 0
 String
 
 INPUTBOX
 255
-640
+680
 465
-725
-protein-response-model
-#yield = #intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#latitude-beta * #latituude) + (#longitude-beta * #longitude)
+765
+protein-yield-response-model
+#intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#lat-beta * #latitude) + (#lon-beta * #longitude)
 1
 0
 String
 
 INPUTBOX
 505
-640
+680
 715
-725
-dairy-response-model
-#yield = #intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#latitude-beta * #latituude) + (#longitude-beta * #longitude)
+765
+dairy-yield-response-model
+#intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#lat-beta * #latitude) + (#lon-beta * #longitude)
 1
 0
 String
 
 INPUTBOX
 755
-640
+680
 965
-725
-non-leafy-veg-response-model
-#yield = #intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#latitude-beta * #latituude) + (#longitude-beta * #longitude)
+765
+non-leafy-veg-yield-response-model
+#intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#lat-beta * #latitude) + (#lon-beta * #longitude)
 1
 0
 String
 
 INPUTBOX
 995
-640
+680
 1205
-725
-leafy-veg-response-model
-#yield = #intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#latitude-beta * #latituude) + (#longitude-beta * #longitude)
+765
+leafy-veg-yield-response-model
+#intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#lat-beta * #latitude) + (#lon-beta * #longitude)
 1
 0
 String
 
 INPUTBOX
 1240
-640
+680
 1450
-725
-fruits-response-model
-#yield = #intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#latitude-beta * #latituude) + (#longitude-beta * #longitude)
+765
+fruits-yield-response-model
+#intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#lat-beta * #latitude) + (#lon-beta * #longitude)
 1
 0
 String
@@ -1326,14 +1419,14 @@ flip-data-series?
 -1000
 
 SLIDER
-455
-545
-630
-578
+230
+510
+440
+543
 raise-lower-tmin
 raise-lower-tmin
--10
-10
+-5
+5
 0.0
 0.1
 1
@@ -1341,14 +1434,14 @@ raise-lower-tmin
 HORIZONTAL
 
 SLIDER
-640
-545
-820
-578
+230
+550
+440
+583
 raise-lower-tmax
 raise-lower-tmax
--10
-10
+-5
+5
 0.0
 0.1
 1
@@ -1356,10 +1449,10 @@ raise-lower-tmax
 HORIZONTAL
 
 SLIDER
-830
-545
-1005
-578
+230
+585
+440
+618
 raise-lower-prec
 raise-lower-prec
 -250
@@ -1371,9 +1464,9 @@ mm
 HORIZONTAL
 
 SWITCH
-675
+10
 505
-785
+220
 538
 shock
 shock
@@ -1392,6 +1485,39 @@ Data series
 1
 11
 
+MONITOR
+1020
+245
+1450
+290
+Baseline period
+ifelse-value (baseline-period = 0) [\"NA\"] [baseline-period]
+0
+1
+11
+
+MONITOR
+1020
+580
+1230
+625
+Baseline mean (world-view)
+mean [value-baseline] of patches with [(value <= 0) or (value >= 0)]
+5
+1
+11
+
+MONITOR
+1240
+580
+1450
+625
+Baseline mean rel yield (world-view)
+mean [value-baseline-rel] of patches with [(value <= 0) or (value >= 0)]
+5
+1
+11
+
 @#$#@#$#@
 # FOODCLIM: SIMULATING FOOD YIELD RESPONSES TO CLIMATE CHANGE IN NETLOGO
 
@@ -1400,7 +1526,7 @@ You are currently using the developer version of `FoodClim`.
 ### TO DO
 
 - Fix interface proportions.
-- Implmenent string response functions.
+- Implemenent string response functions.
 
 ## HOW TO USE IT
 
@@ -1410,9 +1536,29 @@ Once `LogoClim` is installed, you can run the `FoodClim` model by specifying the
 
 ### BEHAVIOR NOTES
 
+#### ORDER OF EVENTS
+
 Due to the use of empirical data, the world and charts may experience some delay. However, it’s important to note the order of events: the world will always update **before** the charts.
 
-If `flip-series?` is on, the color of the chart series will slightly fade at the point where the flip occurs.
+#### CHARTS
+
+The starting month of the one-year baseline cycle is indicated by a black line on the bottom of the charts. The relative yield will always take into account the starting year and starting month.
+
+If `flip-series?` is on, the color of the chart series will slightly fade at the point where the flip occurs to the `Future climate data` series.
+
+##### `raise-lower-*` SLIDERS
+
+These sliders adjust the global value of a variable by proportionally scaling each patch's value. Specifically, a proportionality constant (alpha) is applied to each patch so that the overall mean changes by the desired amount:
+
+alpha = ΔTmean / Tmean
+
+Where:
+
+- alpha = Proportionality constant
+- ΔTmean = Desired change in the global mean
+- Tmean = Current mean temperature across all patches
+
+This ensures that patches with higher initial values receive proportionally larger adjustments, while the system's overall mean changes by exactly the specified amount.
 
 ## HOW TO CITE
 

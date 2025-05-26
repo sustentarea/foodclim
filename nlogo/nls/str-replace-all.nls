@@ -8,20 +8,24 @@
 
 ; extensions [sr]
 
-; Don't forget to use `sr:setup` in `setup`.
+; Ensure `sr:setup` is called in the `setup` procedure.
 
-to-report str-extract [#x #pattern]
+to-report str-replace-all [#x #pattern #replacement]
   assert-string #pattern
+  assert-string #replacement
 
   set #x normalize-value #x
 
   report sr:runresult (word
-    "stringr::str_extract("
+    "stringr::str_replace_all("
     "string = "
     #x
     ", "
     "pattern = "
     single-quote #pattern
+    ", "
+    "replacement = "
+    single-quote #replacement
     ")"
   )
 end

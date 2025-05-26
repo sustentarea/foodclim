@@ -30,11 +30,10 @@ to setup-variables
   set patch-coordinates combine range-pxcor range-pycor
   set year [year] ls:of tmin-ls-model
   set month [month] ls:of tmin-ls-model
-
-  set grains-res-model parse-res-model-string grains-response-model
-  set protein-res-model parse-res-model-string protein-response-model
-  set non-leafy-veg-res-model parse-res-model-string non-leafy-veg-response-model
-  set leafy-veg-res-model parse-res-model-string leafy-veg-response-model
-  set fruits-res-model parse-res-model-string fruits-response-model
-  set dairy-res-model parse-res-model-string dairy-response-model
+  
+  set baseline-period (word
+    (num-to-str-month month) " " year
+    " to "
+    (num-to-str-month (month - 1)) " " year
+  )
 end

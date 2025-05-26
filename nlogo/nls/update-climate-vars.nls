@@ -14,10 +14,8 @@ to update-climate-vars
       set prec [[value] of patch (first #i) (last #i)] ls:of prec-ls-model
     ]
   ]
-
-  ask patches with [(tmin <= 0) or (tmin >= 0)] [
-    set tmin tmin + raise-lower-tmin
-    set tmax tmax + raise-lower-tmax
-    set prec prec + raise-lower-prec
-  ]
+  
+  if (not (raise-lower-tmin = 0)) [raise-lower-patch-value "tmin"]
+  if (not (raise-lower-tmax = 0)) [raise-lower-patch-value "tmax"]
+  if (not (raise-lower-prec = 0)) [raise-lower-patch-value "prec"]
 end

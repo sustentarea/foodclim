@@ -1,0 +1,25 @@
+; __include ["check-string.nls"]
+; globals [raise-lower-*]
+
+to raise-lower-patch-value [#value]
+  assert-string #value
+
+  let delta runresult (word "raise-lower-" #value)
+
+  if (not (delta = 0)) [
+    let value-mean mean [runresult #value] of patches with [
+      (runresult #value <= 0) or (runresult #value >= 0)
+    ]
+
+    let factor (delta / value-mean)
+
+    ask patches with [
+      (runresult #value <= 0) or
+      (runresult #value >= 0)
+    ] [
+      set temp (factor + 1) *  (runresult #value)
+
+      run (word "set " #value " temp")
+    ]
+  ]
+end

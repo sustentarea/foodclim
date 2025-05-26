@@ -30,16 +30,25 @@ to setup-patches
         [[longitude] of patch (first #i) (last #i)] ls:of tmin-ls-model
       )
 
-      set value tmin
-      set grains-yield tmin
-      set protein-yield tmin
-      set non-leafy-veg-yield tmin
-      set leafy-veg-yield tmin
-      set fruits-yield tmin
-      set dairy-yield tmin
+      if (not (tmin <= 0 or tmin >= 0)) [set value tmin]
+      if (not (tmin <= 0 or tmin >= 0)) [set grains-yield tmin]
+      if (not (tmin <= 0 or tmin >= 0)) [set protein-yield tmin]
+      if (not (tmin <= 0 or tmin >= 0)) [set dairy-yield tmin]
+      if (not (tmin <= 0 or tmin >= 0)) [set non-leafy-veg-yield tmin]
+      if (not (tmin <= 0 or tmin >= 0)) [set leafy-veg-yield tmin]
+      if (not (tmin <= 0 or tmin >= 0)) [set fruits-yield tmin]
+      
+      if (not (tmin <= 0 or tmin >= 0)) [set value-baseline-rel tmin]
+      if (not (tmin <= 0 or tmin >= 0)) [set grains-yield-baseline-rel tmin]
+      if (not (tmin <= 0 or tmin >= 0)) [set protein-yield-baseline-rel tmin]
+      if (not (tmin <= 0 or tmin >= 0)) [set dairy-yield-baseline-rel tmin]
+      if (not (tmin <= 0 or tmin >= 0)) [set non-leafy-veg-yield-baseline-rel tmin]
+      if (not (tmin <= 0 or tmin >= 0)) [set leafy-veg-yield-baseline-rel tmin]
+      if (not (tmin <= 0 or tmin >= 0)) [set fruits-yield-baseline-rel tmin]
     ]
   ]
 
   compute-yield
+  compute-yield-baseline
   update-patches
 end

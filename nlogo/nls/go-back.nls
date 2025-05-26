@@ -41,6 +41,6 @@ to go-back
   set month [month] ls:of tmin-ls-model
 
   update-climate-vars
-  compute-yield
+  compute-yield false
   update-patches
 end
