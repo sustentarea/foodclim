@@ -74,7 +74,7 @@ The model runs in paralel with the [`LogoClim`](https://github.com/sustentarea/l
 
 > If you find this project useful, please consider giving it a star! &nbsp; [![GitHub repo stars](https://img.shields.io/github/stars/sustentarea/foodclim)](https://github.com/sustentarea/foodclim/)
 
-![FoodClim Interface](images/foodclim-interface-bra-hmwd-10m.png)
+![FoodClim Interface](images/foodclim-interface-bra-10m.png)
 
 ## How to Use It
 

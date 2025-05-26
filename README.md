@@ -30,7 +30,7 @@ provides climate data from [WorldClim 2.1](https://worldclim.org/).
 > [![GitHub repo
 > stars](https://img.shields.io/github/stars/sustentarea/foodclim)](https://github.com/sustentarea/foodclim/)
 
-![FoodClim Interface](images/foodclim-interface-bra-hmwd-10m.png)
+![FoodClim Interface](images/foodclim-interface-bra-10m.png)
 
 ## How to Use It
 
