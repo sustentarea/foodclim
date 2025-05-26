@@ -8,15 +8,12 @@ to raise-lower-patch-value [#value]
 
   if (not (delta = 0)) [
     let value-mean mean [runresult #value] of patches with [
-      (runresult #value <= 0) or (runresult #value >= 0)
+      not is-missing? (runresult #value)
     ]
 
     let factor (delta / value-mean)
 
-    ask patches with [
-      (runresult #value <= 0) or
-      (runresult #value >= 0)
-    ] [
+    ask patches with [not is-missing? (runresult #value)] [
       set temp (factor + 1) *  (runresult #value)
 
       run (word "set " #value " temp")

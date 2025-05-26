@@ -12,12 +12,16 @@
 
 to setup-stats
   let yield-data (list
-    log mean [grains-yield] of patches with [(value <= 0) or (value >= 0)] 10
-    log mean [protein-yield] of patches with [(value <= 0) or (value >= 0)] 10
-    log mean [non-leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)] 10
-    log mean [leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)] 10
-    log mean [fruits-yield] of patches with [(value <= 0) or (value >= 0)] 10
-    log mean [dairy-yield] of patches with [(value <= 0) or (value >= 0)] 10
+    log mean [grains-yield] of patches with [not is-missing? grains-yield] 10
+    log mean [protein-yield] of patches with [not is-missing? protein-yield] 10
+    log mean [non-leafy-veg-yield] of patches with [
+      not is-missing? non-leafy-veg-yield
+    ] 10
+    log mean [leafy-veg-yield] of patches with [
+      not is-missing? leafy-veg-yield
+    ] 10
+    log mean [fruits-yield] of patches with [not is-missing? fruits-yield] 10
+    log mean [dairy-yield] of patches with [not is-missing? dairy-yield] 10
   )
 
   set max-value max yield-data
@@ -26,6 +30,6 @@ to setup-stats
   set min-plot-y ifelse-value (
     (min-value < 0) or ((floor min-value - 1) < 0)
   ) [1] [floor min-value - 1]
-  
+
   set max-plot-y ceiling max-value + 1
 end

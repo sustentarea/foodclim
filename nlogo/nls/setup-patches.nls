@@ -1,4 +1,4 @@
-; __includes ["compute-yield.nls" "update-patches.nls"]
+; __includes ["compute-food-yield.nls" "update-patches.nls"]
 
 ; patches-own [
 ;   value
@@ -30,25 +30,27 @@ to setup-patches
         [[longitude] of patch (first #i) (last #i)] ls:of tmin-ls-model
       )
 
-      if (not (tmin <= 0 or tmin >= 0)) [set value tmin]
-      if (not (tmin <= 0 or tmin >= 0)) [set grains-yield tmin]
-      if (not (tmin <= 0 or tmin >= 0)) [set protein-yield tmin]
-      if (not (tmin <= 0 or tmin >= 0)) [set dairy-yield tmin]
-      if (not (tmin <= 0 or tmin >= 0)) [set non-leafy-veg-yield tmin]
-      if (not (tmin <= 0 or tmin >= 0)) [set leafy-veg-yield tmin]
-      if (not (tmin <= 0 or tmin >= 0)) [set fruits-yield tmin]
-      
-      if (not (tmin <= 0 or tmin >= 0)) [set value-baseline-rel tmin]
-      if (not (tmin <= 0 or tmin >= 0)) [set grains-yield-baseline-rel tmin]
-      if (not (tmin <= 0 or tmin >= 0)) [set protein-yield-baseline-rel tmin]
-      if (not (tmin <= 0 or tmin >= 0)) [set dairy-yield-baseline-rel tmin]
-      if (not (tmin <= 0 or tmin >= 0)) [set non-leafy-veg-yield-baseline-rel tmin]
-      if (not (tmin <= 0 or tmin >= 0)) [set leafy-veg-yield-baseline-rel tmin]
-      if (not (tmin <= 0 or tmin >= 0)) [set fruits-yield-baseline-rel tmin]
+      if (is-missing? tmin) [
+        set value tmin
+        set grains-yield tmin
+        set protein-yield tmin
+        set dairy-yield tmin
+        set non-leafy-veg-yield tmin
+        set leafy-veg-yield tmin
+        set fruits-yield tmin
+
+        set value-baseline-rel tmin
+        set grains-yield-baseline-rel tmin
+        set protein-yield-baseline-rel tmin
+        set dairy-yield-baseline-rel tmin
+        set non-leafy-veg-yield-baseline-rel tmin
+        set leafy-veg-yield-baseline-rel tmin
+        set fruits-yield-baseline-rel tmin
+      ]
     ]
   ]
 
-  compute-yield
+  compute-food-yield
   compute-yield-baseline
   update-patches
 end

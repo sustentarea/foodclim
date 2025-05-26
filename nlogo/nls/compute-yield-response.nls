@@ -1,0 +1,42 @@
+; __includes ["check-logical.nls" "check-number.nls" "check-true.nls"]
+
+to-report compute-yield-response [
+  #intercept
+  #tmin-beta
+  #tmin
+  #tmax-beta
+  #tmax
+  #prec-beta
+  #prec
+  #lat-beta
+  #latitude
+  #lon-beta
+  #longitude
+  #random-threshold
+  #add-random?
+]
+  assert-number #intercept
+  assert-number #tmin-beta
+  assert-number #tmin
+  assert-number #tmax-beta
+  assert-number #tmax
+  assert-number #prec-beta
+  assert-number #prec
+  assert-number #lat-beta
+  assert-number #latitude
+  assert-number #lon-beta
+  assert-number #longitude
+  assert-number #random-threshold
+  assert-logical #add-random?
+
+  let random-mult compute-random-mult #random-threshold #add-random?
+
+  report (
+    #intercept +
+    (#tmin-beta * #tmin) +
+    (#tmax-beta * #tmax) +
+    (#prec-beta * #prec) +
+    (#lat-beta * #latitude) +
+    (#lon-beta * #longitude)
+  ) * random-mult
+end

@@ -1,0 +1,74 @@
+; __includes ["check-string.nls" "check-true.nls"]
+
+; globals [
+;   *-intercept
+;   *-tmin-beta
+;   *-tmax-beta
+;   *-prec-beta
+;   *-lat-beta
+;   *-lon-beta
+;   *-random-threshold
+;   *-yield-baseline
+;   *-yield-baseline-rel
+;   add-random?
+;   shock
+;   shock-threshold
+;   temp
+; ]
+
+to compute-yield-value [#food]
+  ask patches with [not is-missing? runresult (word #food "-yield")] [
+    ifelse (
+      (not is-missing? tmin) and
+      (not is-missing? tmax) and
+      (not is-missing? prec)
+     ) [
+      ; `temp` is a temporary variable created to use with `run`.`
+      set temp compute-yield-response
+        runresult (word #food "-intercept")
+        runresult (word #food "-tmin-beta")
+        tmin
+        runresult (word #food "-tmax-beta")
+        tmax
+        runresult (word #food "-prec-beta")
+        prec
+        runresult (word #food "-lat-beta")
+        latitude
+        runresult (word #food "-lon-beta")
+        longitude
+        runresult (word #food "-random-threshold")
+        add-random?
+
+      if (is-true? shock) [
+        let random-mult random-float shock-threshold
+        set temp (1 - random-mult) * temp
+      ]
+
+      if (temp < 0) [set temp 0]
+
+      run (word "set " #food "-yield temp")
+      
+      ifelse ((index < 12) and (flip-index = 0)) [
+        run (word "set " #food "-yield-baseline-rel 1")
+      ] [
+        carefully [
+          run (word
+            "set "
+            #food "-yield-baseline-rel "
+            #food "-yield / " #food "-yield-baseline-"  month
+          )
+        ] [
+          set temp "NA"
+          
+          run (word "set " #food "-yield-baseline-rel temp")
+        ]
+        
+      ]
+    ] [
+      ; To assign NaN values to patches.
+      set temp tmin
+
+      run (word "set " #food "-yield temp")
+    ]
+  ]
+end

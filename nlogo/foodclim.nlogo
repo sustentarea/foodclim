@@ -19,6 +19,7 @@ __includes [
   "nls/check-integer.nls"
   "nls/check-list.nls"
   "nls/check-logical.nls"
+  "nls/check-missing.nls"
   "nls/check-number.nls"
   "nls/check-tick-window.nls"
   "nls/check-string.nls"
@@ -27,8 +28,10 @@ __includes [
   "nls/collapse.nls"
   "nls/combine.nls"
   "nls/compute-food-yield.nls"
-  "nls/compute-yield.nls"
+  "nls/compute-random-mult.nls"
+  "nls/compute-yield-value.nls"
   "nls/compute-yield-baseline.nls"
+  "nls/compute-yield-response.nls"
   "nls/go-back.nls"
   "nls/halt.nls"
   "nls/list-to-c.nls"
@@ -36,7 +39,6 @@ __includes [
   "nls/normalize-value.nls"
   "nls/normalize-year.nls"
   "nls/num-to-str-month.nls"
-  "nls/parse-res-model-string.nls"
   "nls/quartile.nls"
   "nls/raise-lower-patch-value.nls"
   "nls/setup-logoclim.nls"
@@ -77,12 +79,6 @@ globals [
   tmin-ls-model
   tmax-ls-model
   prec-ls-model
-  intercept
-  tmin-beta
-  tmax-beta
-  prec-beta
-  lat-beta
-  lon-beta
   flip-index ; To use with `flip-data-series?`.
   temp ; To use with `run`.
   seed
@@ -238,7 +234,7 @@ to go [#tick? #wait?]
   set month [month] ls:of tmin-ls-model
 
   update-climate-vars
-  compute-yield
+  compute-food-yield
   if ((index < 12) and (flip-index = 0)) [compute-yield-baseline]
   update-patches
 
@@ -275,9 +271,9 @@ Months
 
 SLIDER
 10
-770
+685
 222
-803
+718
 grains-intercept
 grains-intercept
 -100000
@@ -290,9 +286,9 @@ HORIZONTAL
 
 SLIDER
 10
-805
+720
 220
-838
+753
 grains-tmin-beta
 grains-tmin-beta
 -10000
@@ -305,9 +301,9 @@ HORIZONTAL
 
 SLIDER
 10
-840
+755
 220
-873
+788
 grains-tmax-beta
 grains-tmax-beta
 -10000
@@ -320,9 +316,9 @@ HORIZONTAL
 
 SLIDER
 10
-880
+795
 220
-913
+828
 grains-prec-beta
 grains-prec-beta
 -1000
@@ -335,9 +331,9 @@ HORIZONTAL
 
 SLIDER
 10
-920
+835
 220
-953
+868
 grains-lat-beta
 grains-lat-beta
 -10000
@@ -350,9 +346,9 @@ HORIZONTAL
 
 SLIDER
 10
-960
+875
 220
-993
+908
 grains-lon-beta
 grains-lon-beta
 -10000
@@ -365,9 +361,9 @@ HORIZONTAL
 
 SLIDER
 10
-1000
+915
 220
-1033
+948
 grains-random-threshold
 grains-random-threshold
 0
@@ -380,9 +376,9 @@ HORIZONTAL
 
 SWITCH
 10
-465
+360
 220
-498
+393
 add-random?
 add-random?
 0
@@ -411,10 +407,10 @@ start-year
 Number
 
 BUTTON
-10
-325
-220
-360
+230
+515
+440
+550
 Select LogoClim file
 set logoclim-path user-file
 NIL
@@ -428,10 +424,10 @@ NIL
 1
 
 INPUTBOX
-10
-365
-220
-425
+230
+555
+440
+615
 logoclim-path
 ../../logoclim/nlogo/logoclim.nlogo
 1
@@ -665,12 +661,12 @@ true
 true
 "set-plot-y-range min-plot-y max-plot-y" "set-plot-x-range 0 (ifelse-value (ticks = 0) [1] [ceiling (ticks * 1.25)])"
 PENS
-"Grains" 1.0 0 -955883 true "" "let pen-color orange\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [grains-yield] of patches with [(value <= 0) or (value >= 0)]) 10"
-"Protein" 1.0 0 -8630108 true "" "let pen-color violet\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [protein-yield] of patches with [(value <= 0) or (value >= 0)]) 10"
-"Dairy" 1.0 0 -13345367 true "" "let pen-color blue\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [dairy-yield] of patches with [(value <= 0) or (value >= 0)]) 10"
-"Non-leafy veg." 1.0 0 -13840069 true "" "let pen-color lime\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [non-leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]) 10"
-"Leafy veg." 1.0 0 -14835848 true "" "let pen-color turquoise\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [leafy-veg-yield] of patches with [(value <= 0) or (value >= 0)]) 10"
-"Fruits" 1.0 0 -2674135 true "" "let pen-color red\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [fruits-yield] of patches with [(value <= 0) or (value >= 0)]) 10"
+"Grains" 1.0 0 -955883 true "" "let pen-color orange\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [grains-yield] of patches with [\nnot is-missing? grains-yield \n]) 10"
+"Protein" 1.0 0 -8630108 true "" "let pen-color violet\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [protein-yield] of patches with [\n  not is-missing? protein-yield \n]) 10"
+"Dairy" 1.0 0 -13345367 true "" "let pen-color blue\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [dairy-yield] of patches with [\n not is-missing? dairy-yield \n]) 10"
+"Non-leafy veg." 1.0 0 -13840069 true "" "let pen-color lime\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [non-leafy-veg-yield] of patches with [\n not is-missing? non-leafy-veg-yield \n]) 10"
+"Leafy veg." 1.0 0 -14835848 true "" "let pen-color turquoise\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [leafy-veg-yield] of patches with [\n  not is-missing? leafy-veg-yield \n]) 10"
+"Fruits" 1.0 0 -2674135 true "" "let pen-color red\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [fruits-yield] of patches with [\n not is-missing? fruits-yield \n]) 10"
 "(Year indicator)" 1.0 0 -16777216 false "" "ifelse (\n  (start-month = num-to-str-month month) or\n  ((index = 1) and (flip-index = 0))\n) [\n  set-plot-pen-color black\n] [\n  set-plot-pen-color white\n]\n\nplot min-plot-y"
 
 MONITOR
@@ -679,7 +675,7 @@ MONITOR
 1230
 525
 Mean (world-view)
-mean [value] of patches with [(value <= 0) or (value >= 0)]
+mean [value] of patches with [not is-missing? value]
 5
 1
 11
@@ -690,7 +686,7 @@ MONITOR
 1230
 575
 Minimum (world-view)
-min [value] of patches with [(value <= 0) or (value >= 0)]
+min [value] of patches with [not is-missing? value]
 5
 1
 11
@@ -711,12 +707,12 @@ true
 true
 "set-plot-y-range 0 2" "set-plot-x-range 0 (ifelse-value (ticks = 0) [1] [ceiling (ticks * 1.25)])"
 PENS
-"Grains" 1.0 0 -955883 true "" "let pen-color orange\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [grains-yield-baseline-rel] of patches with [(value <= 0) or (value >= 0)]"
-"Protein" 1.0 0 -8630108 true "" "let pen-color violet\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [protein-yield-baseline-rel] of patches with [(value <= 0) or (value >= 0)]"
-"Dairy" 1.0 0 -13345367 true "" "let pen-color blue\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [dairy-yield-baseline-rel] of patches with [(value <= 0) or (value >= 0)]"
-"Non-leafy veg." 1.0 0 -13840069 true "" "let pen-color lime\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [non-leafy-veg-yield-baseline-rel] of patches with [(value <= 0) or (value >= 0)]"
-"Leafy veg." 1.0 0 -14835848 true "" "let pen-color turquoise\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [leafy-veg-yield-baseline-rel] of patches with [(value <= 0) or (value >= 0)]"
-"Fruits" 1.0 0 -2674135 true "" "let pen-color red\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [fruits-yield-baseline-rel] of patches with [(value <= 0) or (value >= 0)]"
+"Grains" 1.0 0 -955883 true "" "let pen-color orange\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [grains-yield-baseline-rel] of patches with [not is-missing? grains-yield-baseline-rel]"
+"Protein" 1.0 0 -8630108 true "" "let pen-color violet\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [protein-yield-baseline-rel] of patches with [\n not is-missing? protein-yield-baseline-rel \n]"
+"Dairy" 1.0 0 -13345367 true "" "let pen-color blue\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [dairy-yield-baseline-rel] of patches with [\n  not is-missing? dairy-yield-baseline-rel \n]"
+"Non-leafy veg." 1.0 0 -13840069 true "" "let pen-color lime\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [non-leafy-veg-yield-baseline-rel] of patches with [\n not is-missing? non-leafy-veg-yield-baseline-rel \n]"
+"Leafy veg." 1.0 0 -14835848 true "" "let pen-color turquoise\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [leafy-veg-yield-baseline-rel] of patches with [\n not is-missing? leafy-veg-yield-baseline-rel \n]"
+"Fruits" 1.0 0 -2674135 true "" "let pen-color red\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [fruits-yield-baseline-rel] of patches with [\n not is-missing? fruits-yield-baseline-rel \n]"
 "(Year indicator)" 1.0 0 -16777216 false "" "ifelse (\n  (start-month = num-to-str-month month) or\n  ((index = 1) and (flip-index = 0))\n) [\n  set-plot-pen-color black\n] [\n  set-plot-pen-color white\n]\n\nplot 0"
 
 MONITOR
@@ -725,7 +721,7 @@ MONITOR
 1450
 525
 Standard deviation (world-view)
-standard-deviation [value] of patches with [(value <= 0) or (value >= 0)]
+standard-deviation [value] of patches with [not is-missing? value]
 5
 1
 11
@@ -736,7 +732,7 @@ MONITOR
 1450
 575
 Maximum (world-view)
-max [value] of patches with [(value <= 0) or (value >= 0)]
+max [value] of patches with [not is-missing? value]
 5
 1
 11
@@ -783,9 +779,9 @@ shared-socioeconomic-pathway
 
 TEXTBOX
 585
-635
+640
 875
-655
+660
 Parameters for Food Group Yield Response
 14
 0.0
@@ -793,9 +789,9 @@ Parameters for Food Group Yield Response
 
 SLIDER
 255
-770
+685
 465
-803
+718
 protein-intercept
 protein-intercept
 -100000
@@ -818,9 +814,9 @@ world-view
 
 SLIDER
 255
-810
+725
 465
-843
+758
 protein-tmin-beta
 protein-tmin-beta
 -10000
@@ -833,9 +829,9 @@ HORIZONTAL
 
 SLIDER
 255
-850
+765
 465
-883
+798
 protein-tmax-beta
 protein-tmax-beta
 -10000
@@ -848,9 +844,9 @@ HORIZONTAL
 
 SLIDER
 255
-885
+800
 465
-918
+833
 protein-prec-beta
 protein-prec-beta
 -1000
@@ -863,9 +859,9 @@ HORIZONTAL
 
 SLIDER
 255
-925
+840
 465
-958
+873
 protein-lat-beta
 protein-lat-beta
 -10000
@@ -878,9 +874,9 @@ HORIZONTAL
 
 SLIDER
 255
-965
+880
 465
-998
+913
 protein-lon-beta
 protein-lon-beta
 -10000
@@ -893,9 +889,9 @@ HORIZONTAL
 
 SLIDER
 255
-1000
+915
 465
-1033
+948
 protein-random-threshold
 protein-random-threshold
 0
@@ -908,9 +904,9 @@ HORIZONTAL
 
 SLIDER
 755
-770
+685
 965
-803
+718
 non-leafy-veg-intercept
 non-leafy-veg-intercept
 -100000
@@ -923,9 +919,9 @@ HORIZONTAL
 
 SLIDER
 755
-810
+725
 965
-843
+758
 non-leafy-veg-tmin-beta
 non-leafy-veg-tmin-beta
 -10000
@@ -938,9 +934,9 @@ HORIZONTAL
 
 SLIDER
 755
-850
+765
 965
-883
+798
 non-leafy-veg-tmax-beta
 non-leafy-veg-tmax-beta
 -10000
@@ -953,9 +949,9 @@ HORIZONTAL
 
 SLIDER
 755
-890
+805
 965
-923
+838
 non-leafy-veg-prec-beta
 non-leafy-veg-prec-beta
 -1000
@@ -968,9 +964,9 @@ HORIZONTAL
 
 SLIDER
 755
-925
+840
 965
-958
+873
 non-leafy-veg-lat-beta
 non-leafy-veg-lat-beta
 -10000
@@ -983,9 +979,9 @@ HORIZONTAL
 
 SLIDER
 755
-960
+875
 965
-993
+908
 non-leafy-veg-lon-beta
 non-leafy-veg-lon-beta
 -10000
@@ -998,9 +994,9 @@ HORIZONTAL
 
 SLIDER
 755
-1000
+915
 965
-1033
+948
 non-leafy-veg-random-threshold
 non-leafy-veg-random-threshold
 0
@@ -1013,9 +1009,9 @@ HORIZONTAL
 
 SLIDER
 995
-770
+685
 1205
-803
+718
 leafy-veg-intercept
 leafy-veg-intercept
 -100000
@@ -1028,9 +1024,9 @@ HORIZONTAL
 
 SLIDER
 995
-810
+725
 1205
-843
+758
 leafy-veg-tmin-beta
 leafy-veg-tmin-beta
 -10000
@@ -1043,9 +1039,9 @@ HORIZONTAL
 
 SLIDER
 995
-850
+765
 1205
-883
+798
 leafy-veg-tmax-beta
 leafy-veg-tmax-beta
 -10000
@@ -1058,9 +1054,9 @@ HORIZONTAL
 
 SLIDER
 995
-890
+805
 1205
-923
+838
 leafy-veg-prec-beta
 leafy-veg-prec-beta
 -1000
@@ -1073,9 +1069,9 @@ HORIZONTAL
 
 SLIDER
 995
-930
+845
 1205
-963
+878
 leafy-veg-lat-beta
 leafy-veg-lat-beta
 -10000
@@ -1088,9 +1084,9 @@ HORIZONTAL
 
 SLIDER
 995
-965
+880
 1205
-998
+913
 leafy-veg-lon-beta
 leafy-veg-lon-beta
 -10000
@@ -1103,9 +1099,9 @@ HORIZONTAL
 
 SLIDER
 995
-1000
+915
 1205
-1033
+948
 leafy-veg-random-threshold
 leafy-veg-random-threshold
 0
@@ -1118,9 +1114,9 @@ HORIZONTAL
 
 SLIDER
 1240
-770
+685
 1450
-803
+718
 fruits-intercept
 fruits-intercept
 -100000
@@ -1133,9 +1129,9 @@ HORIZONTAL
 
 SLIDER
 1240
-810
+725
 1450
-843
+758
 fruits-tmin-beta
 fruits-tmin-beta
 -10000
@@ -1148,9 +1144,9 @@ HORIZONTAL
 
 SLIDER
 1240
-850
+765
 1450
-883
+798
 fruits-tmax-beta
 fruits-tmax-beta
 -10000
@@ -1163,9 +1159,9 @@ HORIZONTAL
 
 SLIDER
 1240
-890
+805
 1450
-923
+838
 fruits-prec-beta
 fruits-prec-beta
 -1000
@@ -1178,9 +1174,9 @@ HORIZONTAL
 
 SLIDER
 1240
-930
+845
 1450
-963
+878
 fruits-lat-beta
 fruits-lat-beta
 -10000
@@ -1193,9 +1189,9 @@ HORIZONTAL
 
 SLIDER
 1240
-965
+880
 1450
-998
+913
 fruits-lon-beta
 fruits-lon-beta
 -10000
@@ -1208,9 +1204,9 @@ HORIZONTAL
 
 SLIDER
 1240
-1000
+915
 1450
-1033
+948
 fruits-random-threshold
 fruits-random-threshold
 0
@@ -1223,9 +1219,9 @@ HORIZONTAL
 
 SLIDER
 505
-770
+685
 715
-803
+718
 dairy-intercept
 dairy-intercept
 -100000
@@ -1238,9 +1234,9 @@ HORIZONTAL
 
 SLIDER
 505
-810
+725
 715
-843
+758
 dairy-tmin-beta
 dairy-tmin-beta
 -10000
@@ -1253,9 +1249,9 @@ HORIZONTAL
 
 SLIDER
 505
-850
+765
 715
-883
+798
 dairy-tmax-beta
 dairy-tmax-beta
 -10000
@@ -1268,9 +1264,9 @@ HORIZONTAL
 
 SLIDER
 505
-890
+805
 715
-923
+838
 dairy-prec-beta
 dairy-prec-beta
 -1000
@@ -1283,9 +1279,9 @@ HORIZONTAL
 
 SLIDER
 505
-925
+840
 715
-958
+873
 dairy-lat-beta
 dairy-lat-beta
 -10000
@@ -1298,9 +1294,9 @@ HORIZONTAL
 
 SLIDER
 505
-960
+875
 715
-993
+908
 dairy-lon-beta
 dairy-lon-beta
 -10000
@@ -1313,9 +1309,9 @@ HORIZONTAL
 
 SLIDER
 505
-1000
+915
 715
-1033
+948
 dairy-random-threshold
 dairy-random-threshold
 0
@@ -1328,9 +1324,9 @@ HORIZONTAL
 
 SLIDER
 10
-540
+435
 220
-573
+468
 shock-threshold
 shock-threshold
 0
@@ -1341,77 +1337,11 @@ shock-threshold
 NIL
 HORIZONTAL
 
-INPUTBOX
-10
-680
-220
-765
-grains-yield-response-model
-#intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#lat-beta * #latitude) + (#lon-beta * #longitude)
-1
-0
-String
-
-INPUTBOX
-255
-680
-465
-765
-protein-yield-response-model
-#intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#lat-beta * #latitude) + (#lon-beta * #longitude)
-1
-0
-String
-
-INPUTBOX
-505
-680
-715
-765
-dairy-yield-response-model
-#intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#lat-beta * #latitude) + (#lon-beta * #longitude)
-1
-0
-String
-
-INPUTBOX
-755
-680
-965
-765
-non-leafy-veg-yield-response-model
-#intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#lat-beta * #latitude) + (#lon-beta * #longitude)
-1
-0
-String
-
-INPUTBOX
-995
-680
-1205
-765
-leafy-veg-yield-response-model
-#intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#lat-beta * #latitude) + (#lon-beta * #longitude)
-1
-0
-String
-
-INPUTBOX
-1240
-680
-1450
-765
-fruits-yield-response-model
-#intercept + (#tmin-beta * #tmin) + (#tmax-beta * #tmax) + (#prec-beta * #prec) + (#lat-beta * #latitude) + (#lon-beta * #longitude)
-1
-0
-String
-
 SWITCH
 10
-430
+325
 220
-463
+358
 flip-data-series?
 flip-data-series?
 0
@@ -1419,25 +1349,25 @@ flip-data-series?
 -1000
 
 SLIDER
-230
+10
+470
+220
+503
+raise-lower-tmin
+raise-lower-tmin
+-5
+5
+0.0
+0.1
+1
+ºC
+HORIZONTAL
+
+SLIDER
+10
 510
-440
+220
 543
-raise-lower-tmin
-raise-lower-tmin
--5
-5
-0.0
-0.1
-1
-ºC
-HORIZONTAL
-
-SLIDER
-230
-550
-440
-583
 raise-lower-tmax
 raise-lower-tmax
 -5
@@ -1449,10 +1379,10 @@ raise-lower-tmax
 HORIZONTAL
 
 SLIDER
-230
-585
-440
-618
+10
+545
+220
+578
 raise-lower-prec
 raise-lower-prec
 -250
@@ -1465,9 +1395,9 @@ HORIZONTAL
 
 SWITCH
 10
-505
+400
 220
-538
+433
 shock
 shock
 1
@@ -1502,7 +1432,7 @@ MONITOR
 1230
 625
 Baseline mean (world-view)
-mean [value-baseline] of patches with [(value <= 0) or (value >= 0)]
+mean [value-baseline] of patches with [\n  not is-missing? value-baseline \n]
 5
 1
 11
@@ -1513,7 +1443,7 @@ MONITOR
 1450
 625
 Baseline mean rel yield (world-view)
-mean [value-baseline-rel] of patches with [(value <= 0) or (value >= 0)]
+mean [value-baseline-rel] of patches with [\n not is-missing? value-baseline-rel \n]
 5
 1
 11

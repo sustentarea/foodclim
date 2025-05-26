@@ -1,7 +1,0 @@
-; __includes ["check-string.nls"]
-
-to-report parse-res-model-string [#string]
-  assert-string #string
-
-  report str-remove-all #string "#"
-end

@@ -41,19 +41,19 @@ to update-patches
   ])
 
   ifelse (is-true? white-max) [
-    set max-value max [value] of patches with [(value <= 0) or (value >= 0)]
+    set max-value max [value] of patches with [not is-missing? value]
   ] [
     set max-value white-value
   ]
 
   ifelse (is-true? black-min) [
-    set min-value min [value] of patches with [(value <= 0) or (value >= 0)]
+    set min-value min [value] of patches with [not is-missing? value]
   ] [
     set min-value black-value
   ]
 
   ask (patches) [
-    ifelse ((value <= 0) or (value >= 0)) [
+    ifelse (not is-missing? value) [
       set pcolor scale-color food-color value min-value max-value
     ] [
       set pcolor background-color

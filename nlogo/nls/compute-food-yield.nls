@@ -1,82 +1,10 @@
-; __includes ["check-string.nls" "check-true.nls"]
+; __includes ["compute-yield-value.nls"]
 
-; globals [
-;   *-intercept
-;   *-tmin-beta
-;   *-tmax-beta
-;   *-prec-beta
-;   *-lat-beta
-;   *-lon-beta
-;   *-random-threshold
-;   *-yield-baseline
-;   *-yield-baseline-rel
-;   add-random?
-;   shock
-;   shock-threshold
-;   temp
-; ]
-
-to compute-food-yield [#food]
-  ask patches with [
-    (runresult (word #food "-yield") <= 0) or
-    (runresult (word #food "-yield") >= 0)
-  ] [
-    let random-mult 1
-    set intercept runresult (word #food "-intercept")
-    set tmin-beta runresult (word #food "-tmin-beta")
-    set tmax-beta runresult (word #food "-tmax-beta")
-    set prec-beta runresult (word #food "-prec-beta")
-    set lat-beta runresult (word #food "-lat-beta")
-    set lon-beta runresult (word #food "-lon-beta")
-
-    if (is-true? add-random?) [
-      let random-threshold runresult (word #food "-random-threshold")
-      set random-mult random-float random-threshold
-
-      ifelse (random-float 1 < 0.5) [
-        set random-mult 1 - random-mult
-      ] [
-        set random-mult 1 + random-mult
-      ]
-    ]
-
-    ifelse (
-      ((tmin <= 0) or (tmin >= 0)) and
-      ((tmax <= 0) or (tmax >= 0)) and
-      ((prec <= 0) or (prec >= 0))
-     ) [
-      ; `temp` is a temporary variable created to use with `run`.`
-      set temp (
-        runresult parse-res-model-string (runresult (word #food "-yield-response-model"))
-      ) * random-mult
-
-      if (is-true? shock) [
-        set random-mult random-float shock-threshold
-        set temp (1 - random-mult) * temp
-      ]
-
-      if (temp < 0) [set temp 0]
-
-      run (word "set " #food "-yield temp")
-    ] [
-      ; To assign non-number values to patches.
-      set temp tmin
-
-      run (word "set " #food "-yield temp")
-    ]
-    
-    ifelse ((index < 12) and (flip-index = 0)) [
-      run (word "set " #food "-yield-baseline-rel 1")
-    ] [
-      carefully [
-        run (word 
-          "set " 
-          #food "-yield-baseline-rel " 
-          #food "-yield / " #food "-yield-baseline-"  month
-        )
-      ] [
-        run (word "set " #food "-yield-baseline-rel 0")
-      ]
-    ]
-  ]
+to compute-food-yield
+  compute-yield-value "grains"
+  compute-yield-value "protein"
+  compute-yield-value "dairy"
+  compute-yield-value "non-leafy-veg"
+  compute-yield-value "leafy-veg"
+  compute-yield-value "fruits"
 end

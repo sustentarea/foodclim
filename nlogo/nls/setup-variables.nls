@@ -1,4 +1,4 @@
-; __includes ["combine.nls" "parse-res-model-string.nls"]
+; __includes ["combine.nls"]
 ; extensions [ls]
 
 ; globals[
@@ -9,18 +9,7 @@
 ;   patch-coordinates
 ;   year
 ;   month
-;   grains-res-model
-;   protein-res-model
-;   non-leafy-veg-res-model
-;   leafy-veg-res-model
-;   fruits-res-model
-;   dairy-res-model
-;   grains-response-model
-;   protein-response-model
-;   non-leafy-veg-response-model
-;   leafy-veg-response-model
-;   fruits-response-model
-;   dairy-response-model
+;   baseline-period
 ; ]
 
 to setup-variables

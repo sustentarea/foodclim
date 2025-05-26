@@ -1,6 +1,6 @@
 ; __includdes [
 ;   "check-true.nls"
-;   "compute-yield.nls"
+;   "compute-food-yield.nls"
 ;   "update-climate-vars.nls"
 ;   "update-patches.nls"
 ; ]
@@ -41,6 +41,6 @@ to go-back
   set month [month] ls:of tmin-ls-model
 
   update-climate-vars
-  compute-yield false
+  compute-food-yield
   update-patches
 end
