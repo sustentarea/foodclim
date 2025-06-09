@@ -1,12 +1,12 @@
 ; FoodClim: Simulating Food Yield Responses to Climate Change in Netlogo
 ;
-; Version: 2025-05-23 0.0.0.9000
-; Authors: Daniel Vartanian, Leandro M. T. Garcia, & Aline M. de Carvalho
+; Version: 2025-06-09 0.0.0.9001
+; Authors: Daniel Vartanian, Leandro Garcia, & Aline M. de Carvalho
 ; Maintainer: Daniel Vartanian <https://github.com/danielvartan>
 ; License: MIT
 ; Repository: https://github.com/sustentarea/foodclim
 ;
-; Require NetLogo >= 6.4 and R >= 4.5.
+; Require NetLogo >= 6.4, R >= 4.5, and the LogoClim NetLogo model.
 ; Required R packages: `rJava`, `stringr`, and `lubridate`.
 ; Required NetLogo extensions: `gis`, ls`,` `pathdir`, `sr`, and `string`.
 
@@ -561,10 +561,10 @@ SLIDER
 353
 black-value
 black-value
--500
-500
+0
+1000
 0.0
-1
+10
 1
 NIL
 HORIZONTAL
@@ -587,10 +587,10 @@ SLIDER
 429
 white-value
 white-value
--500
-500
-50.0
-1
+0
+10000
+1000.0
+1000
 1
 NIL
 HORIZONTAL
@@ -1344,7 +1344,7 @@ SWITCH
 358
 flip-data-series?
 flip-data-series?
-1
+0
 1
 -1000
 
@@ -1468,7 +1468,7 @@ Once `LogoClim` is installed, you can run the `FoodClim` model by specifying the
 
 #### ORDER OF EVENTS
 
-Due to the use of empirical data, the world and charts may experience some delay. However, it’s important to note the order of events: the world will always update **before** the charts.
+Due to the use of empirical data, the world and charts may experience some delay. However, it's important to note the order of events: the world will always update **before** the charts.
 
 #### CHARTS
 
@@ -1496,14 +1496,14 @@ If you use this model in your research, please cite it to acknowledge the effort
 
 To cite `FoodClim` in publications please use the following format:
 
-Vartanian, D., & Carvalho, A. M. (2025). *FoodClim: Simulating food yield responses to climate change in NetLogo* [Computer software, NetLogo model]. <https://doi.org/10.17605/OSF.IO/ZGVMP>
+Vartanian, D., Garcia, L., & Carvalho, A. M. (2025). *FoodClim: Simulating food yield responses to climate change in NetLogo* [Computer software, NetLogo model]. <https://doi.org/10.17605/OSF.IO/ZGVMP>
 
 A BibTeX entry for LaTeX users is:
 
 ```latex
 @Misc{vartanian2025,
-  title = {FoodClim: Simulating food production responses to climate change in NetLogo},
-  author = {{Daniel Vartanian} and {Aline Martins de Carvalho}},
+  title = {FoodClim: Simulating food yield responses to climate change in NetLogo},
+  author = {{Daniel Vartanian} and {Leandro Garcia} and {Aline Martins de Carvalho}},
   year = {2025},
   doi = {https://doi.org/10.17605/OSF.IO/ZGVMP},
   note = {NetLogo model}
@@ -1522,7 +1522,7 @@ You can also support the development of `FoodClim` by becoming a sponsor. Click 
 
 ## IMPORTANT LINKS
 
-- Project repository: https://doi.org/10.17605/OSF.IO/ZGVMP
+- OSF repository: https://doi.org/10.17605/OSF.IO/ZGVMP
 - Code repository: https://github.com/sustentarea/foodclim
 - Latest release: https://github.com/sustentarea/foodclim/releases/latest
 - Support development: https://github.com/sponsors/danielvartan
@@ -1551,7 +1551,7 @@ This project was supported by the Conselho Nacional de Desenvolvimento Científi
 
 ## REFERENCES
 
-Firpo, M. Â. F., Guimarães, B. dos S., Dantas, L. G., Silva, M. G. B. da, Alves, L. M., Chadwick, R., Llopart, M. P., & Oliveira, G. S. de. (2022). Assessment of CMIP6 models’ performance in simulating present-day climate in Brazil. *Frontiers in Climate*, *4*. <https://doi.org/10.3389/fclim.2022.948499>
+Firpo, M. Â. F., Guimarães, B. dos S., Dantas, L. G., Silva, M. G. B. da, Alves, L. M., Chadwick, R., Llopart, M. P., & Oliveira, G. S. de. (2022). Assessment of CMIP6 models' performance in simulating present-day climate in Brazil. *Frontiers in Climate*, *4*. <https://doi.org/10.3389/fclim.2022.948499>
 
 Vartanian, D., Garcia, L. M. T., & Carvalho, A. M. (2025). *FoodClim: WorldClim in NetLogo* [Computer software, NetLogo model]. <https://doi.org/10.17605/OSF.IO/EAPZU>
 @#$#@#$#@

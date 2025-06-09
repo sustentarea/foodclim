@@ -3,12 +3,12 @@
 <!-- quarto render -->
 
 <!-- badges: start -->
-[![Project Status: WIP - Initial development is in progress, but there
-has not yet been a stable, usable release suitable for the
-public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
-[![](https://img.shields.io/badge/CoMSES%20Network-Placeholder-1284C5.svg)](https://www.comses.net/)
+[![Project Status: Active - The project has reached a stable, usable
+state and is being actively
+developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![](https://img.shields.io/badge/CoMSES%20Network-not%20published-F5514D.svg)](https://www.comses.net/)
 [![](https://img.shields.io/badge/OSF%20DOI-10.17605/OSF.IO/ZGVMP-1284C5.svg)](https://doi.org/10.17605/OSF.IO/ZGVMP)
-[![](https://img.shields.io/badge/openssf%20best%20practices-Placeholder-orange.svg)](https://bestpractices.coreinfrastructure.org/)
+[![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8B%20%20%E2%97%8F%20%20%E2%97%8B-orange)](https://fair-software.eu)
 [![License:
 MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
@@ -17,12 +17,13 @@ MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://choosealicense
 ## Overview
 
 `FoodClim` is a [NetLogo](https://ccl.northwestern.edu/netlogo/) model
-designed to simulate how food yield responds to different climate
-conditions. It aims to support empirically-based agent-based models
-(ABM) on food systems and enhance the reproducibility of their
-simulations.
+for simulating and visualizing how food yield responds to different
+climate conditions. It is designed to support empirically grounded
+agent-based models on food systems and to improve the reproducibility of
+simulations by enabling [parallel
+execution](#integrating-with-other-models) alongside other models.
 
-The model runs in paralel with the
+The model runs in parallel with the
 [`LogoClim`](https://github.com/sustentarea/logoclim) model, which
 provides climate data from [WorldClim 2.1](https://worldclim.org/).
 
@@ -45,6 +46,15 @@ interface. This allows `FoodClim` to access climate data provided by
 
 Refer to the `Info` tab in the model for additional details.
 
+### Integrating with Other Models
+
+`FoodClim` can be integrated with other models using the
+[LevelSpace](https://ccl.northwestern.edu/netlogo/docs/ls.html) (`ls`)
+extension for NetLogo. LevelSpace enables parallel execution and
+communication between multiple models. This approach supports more
+comprehensive simulations and facilitates the study of complex
+interactions between food systems and environmental processes.
+
 ## How to Cite
 
 If you use this model in your research, please cite it to acknowledge
@@ -53,16 +63,16 @@ helps support the ongoing improvement of the model.
 
 To cite `FoodClim` in publications please use the following format:
 
-Vartanian, D., & Carvalho, A. M. (2025). *FoodClim: Simulating food
-yield responses to climate change in NetLogo* \[Computer software,
-NetLogo model\]. <https://doi.org/10.17605/OSF.IO/ZGVMP>
+Vartanian, D., Garcia, L., & Carvalho, A. M. (2025). *FoodClim:
+Simulating food yield responses to climate change in NetLogo* \[Computer
+software, NetLogo model\]. <https://doi.org/10.17605/OSF.IO/ZGVMP>
 
 A BibTeX entry for LaTeX users is:
 
 ``` latex
 @Misc{vartanian2025,
   title = {FoodClim: Simulating food yield responses to climate change in NetLogo},
-  author = {{Daniel Vartanian} and {Aline Martins de Carvalho}},
+  author = {{Daniel Vartanian} and {Leandro Garcia} and {Aline Martins de Carvalho}},
   year = {2025},
   doi = {https://doi.org/10.17605/OSF.IO/ZGVMP},
   note = {NetLogo model}
@@ -73,7 +83,7 @@ A BibTeX entry for LaTeX users is:
 
 [![](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
-Contributions are welcome! Whether it’s reporting bugs, suggesting
+Contributions are welcome! Whether it's reporting bugs, suggesting
 features, or improving documentation, your input is valuable.
 
 [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/danielvartan)
@@ -127,8 +137,7 @@ the data, and the many funding agencies that support CMIP6 and ESGF.
     </td>
     <td width="70%">
       <p>
-        <code>LogoClim</code>
-        was developed with support from the Research and 
+        This work was developed with support from the Research and 
         Extension Center 
         <a href="https://www.fsp.usp.br/sustentarea/">Sustentarea</a>
          at the University of São Paulo (<a href="https://www5.usp.br/">USP</a>).
@@ -150,8 +159,11 @@ the data, and the many funding agencies that support CMIP6 and ESGF.
     </td>
     <td width="70%">
       <p>
-        This project was supported by the Conselho Nacional de 
-        Desenvolvimento Científico e Tecnológico - Brazil (<a href="https://www.gov.br/cnpq/">CNPq</a>).
+        This work was supported by the Department of Science and 
+        Technology of the Secretariat of Science, Technology, and Innovation 
+        and of the Health Economic-Industrial Complex (<a href="https://www.gov.br/saude/pt-br/composicao/sectics/">SECTICS</a>)  of the <a href="https://www.gov.br/saude/pt-br/composicao/sectics/">Ministry of Health</a> 
+        of Brazil, and the National Council for Scientific and 
+        Technological Development (<a href="https://www.gov.br/cnpq/">CNPq</a>) (grant no. 444588/2023-0)
       </p>
     </td>
   </tr>

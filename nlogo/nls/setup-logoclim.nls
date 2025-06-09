@@ -15,7 +15,6 @@
 ;   logoclim-path
 ; ]
 
-
 to setup-logoclim
   ifelse (is-true? interactive?) [
     ls:create-interactive-models 3 logoclim-path

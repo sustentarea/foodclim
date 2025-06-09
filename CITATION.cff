@@ -1,0 +1,75 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: "FoodClim: Simulating food yield responses to climate change in NetLogo"
+message: >-
+  If you use this software, please cite it using the metadata from this file.
+type: software
+authors:
+  - given-names: Daniel
+    family-names: Vartanian
+    email: danvartan@gmail.com
+    affiliation: University of São Paulo
+    orcid: 'https://orcid.org/0000-0001-7782-759X'
+  - given-names: Leandro
+    family-names: Garcia
+    email: l.garcia@qub.ac.uk
+    affiliation: Queen's University Belfast
+    orcid: 'https://orcid.org/0000-0001-5947-2617'
+  - given-names: Aline Martins
+    family-names: Carvalho
+    email: alinenutri@usp.br
+    affiliation: University of São Paulo
+    orcid: 'https://orcid.org/0000-0002-4900-5609'
+identifiers:
+  - type: doi
+    value: 10.17605/OSF.IO/EAPZU
+    description: OSF Research Compendium
+repository-code: 'https://github.com/sustentarea/foodclim'
+repository: 'https://doi.org/10.17605/OSF.IO/ZGVMP'
+repository-artifact: 'https://doi.org/10.17605/OSF.IO/ZGVMP'
+abstract: >-
+  {FoodClim} is a NetLogo model for simulating and visualizing how food yield
+  responds to different climate conditions. It is designed to support
+  empirically grounded agent-based models on food systems and to improve the
+  reproducibility of simulations by enabling parallel execution alongside other
+  models.
+
+  The model runs in parallel with the LogoClim model, which provides climate
+  data from WorldClim 2.1.
+keywords:
+  - Agent-based modeling
+  - Climate change
+  - Climate data visualization
+  - Climate model integration
+  - Climate projections
+  - Climate simulation
+  - CMIP6
+  - Complex systems
+  - Complexity science
+  - Data interoperability
+  - Food systems
+  - Food yield
+  - Food security
+  - Environmental sciences
+  - Environmental simulation
+  - Future climate scenarios
+  - Geospatial analysis
+  - Historical climate data
+  - LevelSpace
+  - LogoClim
+  - Models
+  - NetLogo
+  - Parallel execution
+  - R (programming language)
+  - Raster data
+  - Reproducible research
+  - Shared socioeconomic pathways
+  - Simulations
+  - Spatial analysis
+  - Spatial resolution
+  - SSPs
+  - Time series
+  - WorldClim
+license: MIT

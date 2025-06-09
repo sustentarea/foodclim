@@ -22,12 +22,12 @@ library(stringr)
 library(badger)
 
 cat(
-  badger::badge_repostatus("wip"),
+  badger::badge_repostatus("active"),
   badger::badge_custom(
-    "CoMSES Network",
-    "Placeholder",
-    "1284C5",
-    "https://www.comses.net/"
+    x = "CoMSES Network",
+    y = "not published",
+    color = "F5514D", # "1284C5"
+    url = "https://www.comses.net/"
   ),
   badger::badge_custom(
     "OSF DOI",
@@ -35,22 +35,23 @@ cat(
     "1284C5",
     "https://doi.org/10.17605/OSF.IO/ZGVMP"
   ),
-  # badger::badge_custom(
-  #   "fair--software.eu",
-  #   "%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8B%20%20%E2%97%8F%20%20%E2%97%8B-",
-  #   "orange",
-  #   "https://fair-software.eu"
-  # ),
+    paste0(
+    "[![",
+    "fair-software.eu",
+    "](",
+    "https://img.shields.io/badge/",
+    "fair--software.eu", "-",
+    "%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8B%20%20%E2%97%8F%20%20%E2%97%8B",
+    "-",
+    "orange",
+    ")](",
+    "https://fair-software.eu",
+    ")"
+  ),
   # paste0(
   #   "[![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)]",
   #   "(https://fairsoftwarechecklist.net/v0.2?f=21&a=32113&i=32001&r=123)"
   # ),
-  badger::badge_custom(
-    "openssf%20best%20practices",
-    "Placeholder",
-    "orange",
-    "https://bestpractices.coreinfrastructure.org/"
-  ),
   badger::badge_license(
     "MIT",
     "green",
@@ -68,9 +69,9 @@ cat(
 
 ## Overview
 
-`FoodClim` is a [NetLogo](https://ccl.northwestern.edu/netlogo/) model designed to simulate how food yield responds to different climate conditions. It aims to support empirically-based agent-based models (ABM) on food systems and enhance the reproducibility of their simulations.
+`FoodClim` is a [NetLogo](https://ccl.northwestern.edu/netlogo/) model for simulating and visualizing how food yield responds to different climate conditions. It is designed to support empirically grounded agent-based models on food systems and to improve the reproducibility of simulations by enabling [parallel execution](#integrating-with-other-models) alongside other models.
 
-The model runs in paralel with the [`LogoClim`](https://github.com/sustentarea/logoclim) model, which provides climate data from [WorldClim 2.1](https://worldclim.org/).
+The model runs in parallel with the [`LogoClim`](https://github.com/sustentarea/logoclim) model, which provides climate data from [WorldClim 2.1](https://worldclim.org/).
 
 > If you find this project useful, please consider giving it a star! &nbsp; [![GitHub repo stars](https://img.shields.io/github/stars/sustentarea/foodclim)](https://github.com/sustentarea/foodclim/)
 
@@ -84,20 +85,24 @@ Once `LogoClim` is installed, you can run the `FoodClim` model by specifying the
 
 Refer to the `Info` tab in the model for additional details.
 
+### Integrating with Other Models
+
+`FoodClim` can be integrated with other models using the [LevelSpace](https://ccl.northwestern.edu/netlogo/docs/ls.html) (`ls`) extension for NetLogo. LevelSpace enables parallel execution and communication between multiple models. This approach supports more comprehensive simulations and facilitates the study of complex interactions between food systems and environmental processes.
+
 ## How to Cite
 
 If you use this model in your research, please cite it to acknowledge the effort invested in its development and maintenance. Your citation helps support the ongoing improvement of the model.
 
 To cite `FoodClim` in publications please use the following format:
 
-Vartanian, D., & Carvalho, A. M. (2025). *FoodClim: Simulating food yield responses to climate change in NetLogo* [Computer software, NetLogo model]. [https://doi.org/10.17605/OSF.IO/ZGVMP](https://doi.org/10.17605/OSF.IO/ZGVMP)
+Vartanian, D., Garcia, L., & Carvalho, A. M. (2025). *FoodClim: Simulating food yield responses to climate change in NetLogo* [Computer software, NetLogo model]. [https://doi.org/10.17605/OSF.IO/ZGVMP](https://doi.org/10.17605/OSF.IO/ZGVMP)
 
 A BibTeX entry for LaTeX users is:
 
 ```latex
 @Misc{vartanian2025,
   title = {FoodClim: Simulating food yield responses to climate change in NetLogo},
-  author = {{Daniel Vartanian} and {Aline Martins de Carvalho}},
+  author = {{Daniel Vartanian} and {Leandro Garcia} and {Aline Martins de Carvalho}},
   year = {2025},
   doi = {https://doi.org/10.17605/OSF.IO/ZGVMP},
   note = {NetLogo model}
@@ -175,8 +180,7 @@ htmltools::tags$table(
     ),
     htmltools::tags$td(
       htmltools::tags$p(
-        htmltools::tags$code("LogoClim"),
-        "was developed with support from the Research and ",
+        "This work was developed with support from the Research and ",
         "Extension Center ",
         htmltools::tags$a(
           "Sustentarea",
@@ -215,14 +219,28 @@ htmltools::tags$table(
     ),
     htmltools::tags$td(
       htmltools::tags$p(
-        "This project was supported by the Conselho Nacional de ",
-        "Desenvolvimento Científico e Tecnológico - Brazil (",
+        "This work was supported by the Department of Science and ",
+        "Technology of the Secretariat of Science, Technology, and Innovation ",
+        "and of the Health Economic-Industrial Complex (",
+        htmltools::tags$a(
+          "SECTICS",
+          href = "https://www.gov.br/saude/pt-br/composicao/sectics/",
+          .noWS = "outside"
+        ),
+        ")  of the ",
+        htmltools::tags$a(
+          "Ministry of Health",
+          href = "https://www.gov.br/saude/pt-br/composicao/sectics/",
+          .noWS = "outside"
+        ), " ",
+        "of Brazil, and the National Council for Scientific and ",
+        "Technological Development (",
         htmltools::tags$a(
           "CNPq",
           href = "https://www.gov.br/cnpq/",
           .noWS = "outside"
         ),
-        ")."
+        ") (grant no. 444588/2023-0)"
       ),
       width = "70%"
     )
