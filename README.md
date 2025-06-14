@@ -1,11 +1,11 @@
-# foodclim
+# FoodClim
 
 <!-- quarto render -->
 
 <!-- badges: start -->
-[![Project Status: Active - The project has reached a stable, usable
-state and is being actively
-developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![Project Status: WIP - Initial development is in progress, but there
+has not yet been a stable, usable release suitable for the
+public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 [![](https://img.shields.io/badge/CoMSES%20Network-not%20published-F5514D.svg)](https://www.comses.net/)
 [![](https://img.shields.io/badge/OSF%20DOI-10.17605/OSF.IO/ZGVMP-1284C5.svg)](https://doi.org/10.17605/OSF.IO/ZGVMP)
 [![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8B%20%20%E2%97%8F%20%20%E2%97%8B-orange)](https://fair-software.eu)

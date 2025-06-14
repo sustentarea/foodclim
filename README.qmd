@@ -1,4 +1,4 @@
-# foodclim
+# FoodClim
 
 <!-- quarto render -->
 
@@ -22,7 +22,7 @@ library(stringr)
 library(badger)
 
 cat(
-  badger::badge_repostatus("active"),
+  badger::badge_repostatus("wip"),
   badger::badge_custom(
     x = "CoMSES Network",
     y = "not published",
@@ -35,7 +35,7 @@ cat(
     "1284C5",
     "https://doi.org/10.17605/OSF.IO/ZGVMP"
   ),
-    paste0(
+  paste0(
     "[![",
     "fair-software.eu",
     "](",
