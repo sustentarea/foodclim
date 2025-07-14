@@ -1,6 +1,6 @@
 # FoodClim
 
-<!-- quarto render -->
+<!-- Quarto render -->
 
 ```{r}
 #| label: setup

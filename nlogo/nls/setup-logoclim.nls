@@ -1,4 +1,3 @@
-; __includes ["check-true.nls"]
 ; extensions [ls]
 
 ; globals [
@@ -11,16 +10,11 @@
 ;   shared-socioeconomic-pathway
 ;   start-year
 ;   start-month
-;   interactive?
 ;   logoclim-path
 ; ]
 
 to setup-logoclim
-  ifelse (is-true? interactive?) [
-    ls:create-interactive-models 3 logoclim-path
-  ] [
-    ls:create-models 3 logoclim-path
-  ]
+  ls:create-models 3 logoclim-path
 
   set tmin-ls-model 0
   set tmax-ls-model 1
@@ -40,6 +34,7 @@ to setup-logoclim
     set shared-socioeconomic-pathway #shared-socioeconomic-pathway
     set start-year #year
     set start-month #month
+    set transition-seconds 0
   ]
 
   ls:ask tmin-ls-model [

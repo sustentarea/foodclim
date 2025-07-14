@@ -1,6 +1,3 @@
-# This CITATION.cff file was generated with cffinit.
-# Visit https://bit.ly/cffinit to generate yours today!
-
 cff-version: 1.2.0
 title: "FoodClim: Simulating food yield responses to climate change in NetLogo"
 message: >-
@@ -22,22 +19,12 @@ authors:
     email: alinenutri@usp.br
     affiliation: University of São Paulo
     orcid: 'https://orcid.org/0000-0002-4900-5609'
-identifiers:
-  - type: doi
-    value: 10.17605/OSF.IO/EAPZU
-    description: OSF Research Compendium
-repository-code: 'https://github.com/sustentarea/foodclim'
-repository: 'https://doi.org/10.17605/OSF.IO/ZGVMP'
-repository-artifact: 'https://doi.org/10.17605/OSF.IO/ZGVMP'
 abstract: >-
   {FoodClim} is a NetLogo model for simulating and visualizing how food yield
   responds to different climate conditions. It is designed to support
   empirically grounded agent-based models on food systems and to improve the
   reproducibility of simulations by enabling parallel execution alongside other
   models.
-
-  The model runs in parallel with the LogoClim model, which provides climate
-  data from WorldClim 2.1.
 keywords:
   - Agent-based modeling
   - Climate change
@@ -62,7 +49,6 @@ keywords:
   - Models
   - NetLogo
   - Parallel execution
-  - R (programming language)
   - Raster data
   - Reproducible research
   - Shared socioeconomic pathways
@@ -72,4 +58,11 @@ keywords:
   - SSPs
   - Time series
   - WorldClim
+identifiers:
+  - type: doi
+    value: 10.17605/OSF.IO/EAPZU
+    description: OSF Research Compendium
+repository-code: 'https://github.com/sustentarea/foodclim'
+repository: 'https://doi.org/10.17605/OSF.IO/ZGVMP'
+repository-artifact: 'https://doi.org/10.17605/OSF.IO/ZGVMP'
 license: MIT

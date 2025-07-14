@@ -10,9 +10,9 @@ to assert-tick-window [#min-ticks]
     (tick-length < #min-ticks)
   ) [
     user-message (word
-      "When using `flip-index?` with the "
-      single-quote data-series " "
-      "series, the minimum number of months between the start "
+      "When using `flip-index?` with the '"
+      data-series
+      "' series, the minimum number of months between the start "
       "and end of the series must be at least "
       #min-ticks
       " months. "

@@ -14,10 +14,11 @@
 
 to update-patches
   let food lookup-food-group world-view
+  let month-num str-to-num-month month
 
   ask patches [
     run (word "set value " food "-yield")
-    run (word "set value-baseline " food "-yield-baseline-" month)
+    run (word "set value-baseline " food "-yield-baseline-" month-num)
     run (word "set value-baseline-rel " food "-yield-baseline-rel")
   ]
 

@@ -2,14 +2,15 @@
 ; extensions [ls]
 
 ; globals[
-;   tmin-ls-model
+;   baseline-period
 ;   index
+;   month
+;   patch-coordinates
 ;   range-pxcor
 ;   range-pycor
-;   patch-coordinates
+;   settings
+;   tmin-ls-model
 ;   year
-;   month
-;   baseline-period
 ; ]
 
 to setup-variables
@@ -20,9 +21,22 @@ to setup-variables
   set year [year] ls:of tmin-ls-model
   set month [month] ls:of tmin-ls-model
   
+  let month-num str-to-num-month month
+  
   set baseline-period (word
-    (num-to-str-month month) " " year
+    month " " year
     " to "
-    (num-to-str-month (month - 1)) " " year
+    (num-to-str-month (month-num - 1)) " " year
+  )
+  
+  set plot-x-max-range 2 ; ticks + 1
+  
+  set settings (list
+    data-series
+    data-resolution
+    global-climate-model
+    shared-socioeconomic-pathway
+    start-month
+    start-year
   )
 end

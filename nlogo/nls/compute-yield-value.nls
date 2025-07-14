@@ -17,6 +17,8 @@
 ; ]
 
 to compute-yield-value [#food]
+  let month-num str-to-num-month month
+  
   ask patches with [not is-missing? runresult (word #food "-yield")] [
     ifelse (
       (not is-missing? tmin) and
@@ -38,14 +40,13 @@ to compute-yield-value [#food]
         longitude
         runresult (word #food "-random-threshold")
         add-random?
-
+      
       if (is-true? shock) [
         let random-mult random-float shock-threshold
         set temp (1 - random-mult) * temp
       ]
 
       if (temp < 0) [set temp 0]
-
       run (word "set " #food "-yield temp")
       
       ifelse ((index < 12) and (flip-index = 0)) [
@@ -55,15 +56,15 @@ to compute-yield-value [#food]
           run (word
             "set "
             #food "-yield-baseline-rel "
-            #food "-yield / " #food "-yield-baseline-"  month
+            #food "-yield / " #food "-yield-baseline-" month-num
           )
         ] [
           set temp "NA"
           
           run (word "set " #food "-yield-baseline-rel temp")
         ]
-        
       ]
+      ; End of the `if` statement.
     ] [
       ; To assign NaN values to patches.
       set temp tmin

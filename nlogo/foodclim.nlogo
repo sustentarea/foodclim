@@ -1,27 +1,30 @@
 ; FoodClim: Simulating Food Yield Responses to Climate Change in Netlogo
 ;
-; Version: 2025-06-09 0.0.0.9001
+; Version: 2025-07-14 0.0.0.9002
 ; Authors: Daniel Vartanian, Leandro Garcia, & Aline M. de Carvalho
 ; Maintainer: Daniel Vartanian <https://github.com/danielvartan>
 ; License: MIT
 ; Repository: https://github.com/sustentarea/foodclim
 ;
-; Require NetLogo >= 6.4, R >= 4.5, and the LogoClim NetLogo model.
-; Required R packages: `rJava`, `stringr`, and `lubridate`.
-; Required NetLogo extensions: `gis`, ls`,` `pathdir`, `sr`, and `string`.
+; Require NetLogo >= 6.4 and the LogoClim NetLogo model.
+; Required NetLogo extensions: `ls` and `string`.
 
 __includes [
   "nls/as-list.nls"
+  "nls/as-string.nls"
+  "nls/check-all.nls"
   "nls/check-atomic.nls"
   "nls/check-between.nls"
   "nls/check-choice.nls"
-  "nls/check-false.nls"
+  "nls/check-empty.nls"
   "nls/check-integer.nls"
   "nls/check-list.nls"
   "nls/check-logical.nls"
   "nls/check-missing.nls"
+  "nls/check-nan.nls"
   "nls/check-number.nls"
   "nls/check-tick-window.nls"
+  "nls/check-start-year.nls"
   "nls/check-string.nls"
   "nls/check-string-or-integer.nls"
   "nls/check-true.nls"
@@ -34,11 +37,10 @@ __includes [
   "nls/compute-yield-response.nls"
   "nls/go-back.nls"
   "nls/halt.nls"
-  "nls/list-to-c.nls"
   "nls/lookup-food-group.nls"
-  "nls/normalize-value.nls"
-  "nls/normalize-year.nls"
   "nls/num-to-str-month.nls"
+  "nls/plot-max-y.nls"
+  "nls/plot-pen-color.nls"
   "nls/quartile.nls"
   "nls/raise-lower-patch-value.nls"
   "nls/setup-logoclim.nls"
@@ -48,19 +50,14 @@ __includes [
   "nls/setup-world.nls"
   "nls/show-values.nls"
   "nls/single-quote.nls"
-  "nls/str-detect.nls"
   "nls/str-extract.nls"
-  "nls/str-remove-all.nls"
-  "nls/str-replace-all.nls"
+  "nls/str-to-num-month.nls"
   "nls/update-climate-vars.nls"
   "nls/update-patches.nls"
 ]
 
 extensions [
-  gis
   ls
-  pathdir
-  sr
   string
 ]
 
@@ -71,17 +68,17 @@ globals [
   baseline-period
   max-value
   min-value
-  min-plot-y
-  max-plot-y
   range-pxcor
   range-pycor
   patch-coordinates
+  plot-x-max-range
   tmin-ls-model
   tmax-ls-model
   prec-ls-model
   flip-index ; To use with `flip-data-series?`.
   temp ; To use with `run`.
   seed
+  settings
 ]
 
 patches-own [
@@ -186,12 +183,12 @@ to setup [#seed]
   random-seed seed
 
   ls:reset
-  sr:setup
-
-  set start-year normalize-year start-year
 
   setup-logoclim
+
+  assert-start-year
   assert-tick-window 12
+
   setup-world
   setup-variables
   setup-patches
@@ -232,6 +229,7 @@ to go [#tick? #wait?]
   set index [index] ls:of tmin-ls-model
   set year [year] ls:of tmin-ls-model
   set month [month] ls:of tmin-ls-model
+  set plot-x-max-range ceiling ((ticks + 1) * 1.25)
 
   update-climate-vars
   compute-food-yield
@@ -270,10 +268,10 @@ Months
 30.0
 
 SLIDER
-10
-685
-222
-718
+785
+820
+995
+853
 grains-intercept
 grains-intercept
 -100000
@@ -285,10 +283,10 @@ kg/ha
 HORIZONTAL
 
 SLIDER
-10
-720
-220
-753
+785
+855
+995
+888
 grains-tmin-beta
 grains-tmin-beta
 -10000
@@ -300,10 +298,10 @@ kg/ha per °C
 HORIZONTAL
 
 SLIDER
-10
-755
-220
-788
+785
+890
+995
+923
 grains-tmax-beta
 grains-tmax-beta
 -10000
@@ -315,10 +313,10 @@ kg/ha per °C
 HORIZONTAL
 
 SLIDER
-10
-795
-220
-828
+785
+930
+995
+963
 grains-prec-beta
 grains-prec-beta
 -1000
@@ -330,10 +328,10 @@ kg/ha per mm
 HORIZONTAL
 
 SLIDER
-10
-835
-220
-868
+785
+970
+995
+1003
 grains-lat-beta
 grains-lat-beta
 -10000
@@ -345,10 +343,10 @@ kg/ha per deg.
 HORIZONTAL
 
 SLIDER
-10
-875
-220
-908
+785
+1010
+995
+1043
 grains-lon-beta
 grains-lon-beta
 -10000
@@ -360,10 +358,10 @@ kg/ha per deg.
 HORIZONTAL
 
 SLIDER
-10
-915
-220
-948
+785
+1050
+995
+1083
 grains-random-threshold
 grains-random-threshold
 0
@@ -375,10 +373,10 @@ NIL
 HORIZONTAL
 
 SWITCH
-10
-360
-220
-393
+330
+1175
+540
+1208
 add-random?
 add-random?
 0
@@ -386,20 +384,20 @@ add-random?
 -1000
 
 CHOOSER
-10
-210
-220
-255
+330
+1020
+540
+1065
 start-month
 start-month
 "January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December"
 0
 
 INPUTBOX
-10
-260
-220
-320
+330
+1070
+540
+1130
 start-year
 2016.0
 1
@@ -407,10 +405,10 @@ start-year
 Number
 
 BUTTON
-230
-515
-440
-550
+560
+1120
+770
+1155
 Select LogoClim file
 set logoclim-path user-file
 NIL
@@ -424,10 +422,10 @@ NIL
 1
 
 INPUTBOX
-230
-555
-440
-615
+560
+1160
+770
+1220
 logoclim-path
 ../../logoclim/nlogo/logoclim.nlogo
 1
@@ -435,10 +433,10 @@ logoclim-path
 String
 
 BUTTON
-230
-10
-330
-45
+455
+500
+555
+535
 Setup
 setup new-seed
 NIL
@@ -452,10 +450,10 @@ NIL
 1
 
 BUTTON
-340
-10
-440
-45
+565
+500
+665
+535
 Go
 go true true
 T
@@ -469,10 +467,10 @@ NIL
 1
 
 BUTTON
-230
-50
-330
-85
+675
+500
+775
+535
 Go back
 go-back
 NIL
@@ -486,10 +484,10 @@ NIL
 1
 
 BUTTON
-340
-50
-440
-85
+785
+500
+885
+535
 Go forward
 go false false
 NIL
@@ -503,10 +501,10 @@ NIL
 1
 
 SLIDER
-230
-90
-440
-123
+560
+820
+770
+853
 transition-seconds
 transition-seconds
 0
@@ -518,10 +516,10 @@ s
 HORIZONTAL
 
 SLIDER
-230
-128
-440
-161
+560
+860
+770
+893
 patch-px-size
 patch-px-size
 0
@@ -532,22 +530,11 @@ patch-px-size
 px
 HORIZONTAL
 
-SWITCH
-230
-166
-440
-199
-interactive?
-interactive?
-1
-1
--1000
-
 INPUTBOX
-230
-255
-440
-315
+560
+900
+770
+960
 background-color
 9.0
 1
@@ -555,10 +542,10 @@ background-color
 Color
 
 SLIDER
-230
-320
-440
-353
+560
+965
+770
+998
 black-value
 black-value
 0
@@ -570,10 +557,10 @@ NIL
 HORIZONTAL
 
 SWITCH
-230
-358
-440
-391
+560
+1003
+770
+1036
 black-min
 black-min
 1
@@ -581,10 +568,10 @@ black-min
 -1000
 
 SLIDER
-230
-396
-440
-429
+560
+1041
+770
+1074
 white-value
 white-value
 0
@@ -596,10 +583,10 @@ NIL
 HORIZONTAL
 
 SWITCH
-230
-434
-440
-467
+560
+1079
+770
+1112
 white-max
 white-max
 0
@@ -607,10 +594,10 @@ white-max
 -1000
 
 BUTTON
-230
-472
-440
-507
+900
+500
+1005
+535
 Show values
 show-values
 T
@@ -629,7 +616,7 @@ MONITOR
 1120
 55
 Year
-year
+ifelse-value\n  ((settings = 0))\n  [\"NA\"]\n  [year]
 0
 1
 11
@@ -640,7 +627,7 @@ MONITOR
 1230
 55
 Month
-ifelse-value (is-integer? month) [num-to-str-month month] [month]
+ifelse-value\n  ((settings = 0))\n  [\"NA\"]\n  [month]
 0
 1
 11
@@ -650,16 +637,16 @@ PLOT
 60
 1450
 240
-Kilogram per Hectare (Mean)
+Kilogram per Hectare
 Months
-log10
+log10(Mean)
 0.0
 0.0
 0.0
 0.0
 true
 true
-"set-plot-y-range min-plot-y max-plot-y" "set-plot-x-range 0 (ifelse-value (ticks = 0) [1] [ceiling (ticks * 1.25)])"
+"set-plot-y-range 1 plot-max-y-log" "set-plot-x-range 0 plot-x-max-range"
 PENS
 "Grains" 1.0 0 -955883 true "" "let pen-color orange\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [grains-yield] of patches with [\nnot is-missing? grains-yield \n]) 10"
 "Protein" 1.0 0 -8630108 true "" "let pen-color violet\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [protein-yield] of patches with [\n  not is-missing? protein-yield \n]) 10"
@@ -667,7 +654,7 @@ PENS
 "Non-leafy veg." 1.0 0 -13840069 true "" "let pen-color lime\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [non-leafy-veg-yield] of patches with [\n not is-missing? non-leafy-veg-yield \n]) 10"
 "Leafy veg." 1.0 0 -14835848 true "" "let pen-color turquoise\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [leafy-veg-yield] of patches with [\n  not is-missing? leafy-veg-yield \n]) 10"
 "Fruits" 1.0 0 -2674135 true "" "let pen-color red\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot log (mean [fruits-yield] of patches with [\n not is-missing? fruits-yield \n]) 10"
-"(Year indicator)" 1.0 0 -16777216 false "" "ifelse (\n  (start-month = num-to-str-month month) or\n  ((index = 1) and (flip-index = 0))\n) [\n  set-plot-pen-color black\n] [\n  set-plot-pen-color white\n]\n\nplot min-plot-y"
+"(Year indicator)" 1.0 0 -16777216 false "" "ifelse (\n  (start-month = month) or\n  ((index = 1) and (flip-index = 0))\n) [\n  set-plot-pen-color black\n] [\n  set-plot-pen-color white\n]\n\nplot 1"
 
 MONITOR
 1020
@@ -705,7 +692,7 @@ yield / base.
 0.0
 true
 true
-"set-plot-y-range 0 2" "set-plot-x-range 0 (ifelse-value (ticks = 0) [1] [ceiling (ticks * 1.25)])"
+"set-plot-y-range 0 2" "set-plot-x-range 0 plot-x-max-range"
 PENS
 "Grains" 1.0 0 -955883 true "" "let pen-color orange\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [grains-yield-baseline-rel] of patches with [not is-missing? grains-yield-baseline-rel]"
 "Protein" 1.0 0 -8630108 true "" "let pen-color violet\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [protein-yield-baseline-rel] of patches with [\n not is-missing? protein-yield-baseline-rel \n]"
@@ -713,7 +700,7 @@ PENS
 "Non-leafy veg." 1.0 0 -13840069 true "" "let pen-color lime\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [non-leafy-veg-yield-baseline-rel] of patches with [\n not is-missing? non-leafy-veg-yield-baseline-rel \n]"
 "Leafy veg." 1.0 0 -14835848 true "" "let pen-color turquoise\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [leafy-veg-yield-baseline-rel] of patches with [\n not is-missing? leafy-veg-yield-baseline-rel \n]"
 "Fruits" 1.0 0 -2674135 true "" "let pen-color red\n\nif (\n  (flip-data-series? = true) and\n  (data-series != \"Future climate data\") and\n  ([data-series] ls:of tmin-ls-model = \"Future climate data\")\n  )[\n  set-plot-pen-color pen-color + 3\n]\n\nplot mean [fruits-yield-baseline-rel] of patches with [\n not is-missing? fruits-yield-baseline-rel \n]"
-"(Year indicator)" 1.0 0 -16777216 false "" "ifelse (\n  (start-month = num-to-str-month month) or\n  ((index = 1) and (flip-index = 0))\n) [\n  set-plot-pen-color black\n] [\n  set-plot-pen-color white\n]\n\nplot 0"
+"(Year indicator)" 1.0 0 -16777216 false "" "ifelse (\n  (start-month = month) or\n  ((index = 1) and (flip-index = 0))\n) [\n  set-plot-pen-color black\n] [\n  set-plot-pen-color white\n]\n\nplot 0"
 
 MONITOR
 1240
@@ -738,60 +725,60 @@ max [value] of patches with [not is-missing? value]
 11
 
 CHOOSER
-10
-10
-220
-55
+330
+820
+540
+865
 data-series
 data-series
 "Historical monthly weather data" "Future climate data"
 0
 
 CHOOSER
-10
-60
-220
-105
+330
+870
+540
+915
 data-resolution
 data-resolution
 "30 seconds (~1 km2  at the equator)" "2.5 minutes (~21 km2 at the equator)" "5 minutes (~85 km2 at the equator)" "10 minutes (~340 km2 at the equator)"
 3
 
 CHOOSER
-10
-110
-220
-155
+330
+920
+540
+965
 global-climate-model
 global-climate-model
 "ACCESS-CM2" "BCC-CSM2-MR" "CMCC-ESM2" "EC-Earth3-Veg" "FIO-ESM-2-0" "GFDL-ESM4" "GISS-E2-1-G" "HadGEM3-GC31-LL" "INM-CM5-0" "IPSL-CM6A-LR" "MIROC6" "MPI-ESM1-2-HR" "MRI-ESM2-0" "UKESM1-0-LL"
 2
 
 CHOOSER
-10
-160
-220
-205
+330
+970
+540
+1015
 shared-socioeconomic-pathway
 shared-socioeconomic-pathway
 "SSP-126" "SSP-245" "SSP-370" "SSP-585"
 3
 
 TEXTBOX
-585
-640
-875
-660
+970
+770
+1260
+790
 Parameters for Food Group Yield Response
 14
 0.0
 1
 
 SLIDER
-255
-685
-465
-718
+785
+1090
+995
+1123
 protein-intercept
 protein-intercept
 -100000
@@ -803,20 +790,20 @@ kg/ha
 HORIZONTAL
 
 CHOOSER
-230
-205
-440
-250
+455
+540
+665
+585
 world-view
 world-view
 "Grains" "Protein" "Dairy" "Non-leafy vegetables" "Leafy vegetables" "Fruits"
 0
 
 SLIDER
-255
-725
-465
-758
+785
+1130
+995
+1163
 protein-tmin-beta
 protein-tmin-beta
 -10000
@@ -828,10 +815,10 @@ kg/ha per °C
 HORIZONTAL
 
 SLIDER
-255
-765
-465
-798
+785
+1170
+995
+1203
 protein-tmax-beta
 protein-tmax-beta
 -10000
@@ -843,10 +830,10 @@ kg/ha per °C
 HORIZONTAL
 
 SLIDER
-255
-800
-465
-833
+785
+1205
+995
+1238
 protein-prec-beta
 protein-prec-beta
 -1000
@@ -858,10 +845,10 @@ kg/ha per mm
 HORIZONTAL
 
 SLIDER
-255
-840
-465
-873
+785
+1245
+995
+1278
 protein-lat-beta
 protein-lat-beta
 -10000
@@ -873,10 +860,10 @@ kg/ha per deg.
 HORIZONTAL
 
 SLIDER
-255
-880
-465
-913
+785
+1285
+995
+1318
 protein-lon-beta
 protein-lon-beta
 -10000
@@ -888,10 +875,10 @@ kg/ha per deg.
 HORIZONTAL
 
 SLIDER
-255
-915
-465
-948
+785
+1320
+995
+1353
 protein-random-threshold
 protein-random-threshold
 0
@@ -903,10 +890,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-755
-685
-965
-718
+1015
+1090
+1225
+1123
 non-leafy-veg-intercept
 non-leafy-veg-intercept
 -100000
@@ -918,10 +905,10 @@ kg/ha
 HORIZONTAL
 
 SLIDER
-755
-725
-965
-758
+1015
+1130
+1225
+1163
 non-leafy-veg-tmin-beta
 non-leafy-veg-tmin-beta
 -10000
@@ -933,10 +920,10 @@ kg/ha per °C
 HORIZONTAL
 
 SLIDER
-755
-765
-965
-798
+1015
+1170
+1225
+1203
 non-leafy-veg-tmax-beta
 non-leafy-veg-tmax-beta
 -10000
@@ -948,10 +935,10 @@ kg/ha per °C
 HORIZONTAL
 
 SLIDER
-755
-805
-965
-838
+1015
+1210
+1225
+1243
 non-leafy-veg-prec-beta
 non-leafy-veg-prec-beta
 -1000
@@ -963,10 +950,10 @@ kg/ha per mm
 HORIZONTAL
 
 SLIDER
-755
-840
-965
-873
+1015
+1245
+1225
+1278
 non-leafy-veg-lat-beta
 non-leafy-veg-lat-beta
 -10000
@@ -978,10 +965,10 @@ kg/ha per deg.
 HORIZONTAL
 
 SLIDER
-755
-875
-965
-908
+1015
+1280
+1225
+1313
 non-leafy-veg-lon-beta
 non-leafy-veg-lon-beta
 -10000
@@ -993,10 +980,10 @@ kg/ha per deg.
 HORIZONTAL
 
 SLIDER
-755
-915
-965
-948
+1015
+1320
+1225
+1353
 non-leafy-veg-random-threshold
 non-leafy-veg-random-threshold
 0
@@ -1008,10 +995,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-995
-685
-1205
-718
+1240
+820
+1450
+853
 leafy-veg-intercept
 leafy-veg-intercept
 -100000
@@ -1023,10 +1010,10 @@ kg/ha
 HORIZONTAL
 
 SLIDER
-995
-725
-1205
-758
+1240
+860
+1450
+893
 leafy-veg-tmin-beta
 leafy-veg-tmin-beta
 -10000
@@ -1038,10 +1025,10 @@ kg/ha per °C
 HORIZONTAL
 
 SLIDER
-995
-765
-1205
-798
+1240
+900
+1450
+933
 leafy-veg-tmax-beta
 leafy-veg-tmax-beta
 -10000
@@ -1053,10 +1040,10 @@ kg/ha per °C
 HORIZONTAL
 
 SLIDER
-995
-805
-1205
-838
+1240
+940
+1450
+973
 leafy-veg-prec-beta
 leafy-veg-prec-beta
 -1000
@@ -1068,10 +1055,10 @@ kg/ha per mm
 HORIZONTAL
 
 SLIDER
-995
-845
-1205
-878
+1240
+980
+1450
+1013
 leafy-veg-lat-beta
 leafy-veg-lat-beta
 -10000
@@ -1083,10 +1070,10 @@ kg/ha per deg.
 HORIZONTAL
 
 SLIDER
-995
-880
-1205
-913
+1240
+1015
+1450
+1048
 leafy-veg-lon-beta
 leafy-veg-lon-beta
 -10000
@@ -1098,10 +1085,10 @@ kg/ha per deg.
 HORIZONTAL
 
 SLIDER
-995
-915
-1205
-948
+1240
+1050
+1450
+1083
 leafy-veg-random-threshold
 leafy-veg-random-threshold
 0
@@ -1114,9 +1101,9 @@ HORIZONTAL
 
 SLIDER
 1240
-685
+1090
 1450
-718
+1123
 fruits-intercept
 fruits-intercept
 -100000
@@ -1129,9 +1116,9 @@ HORIZONTAL
 
 SLIDER
 1240
-725
+1130
 1450
-758
+1163
 fruits-tmin-beta
 fruits-tmin-beta
 -10000
@@ -1144,9 +1131,9 @@ HORIZONTAL
 
 SLIDER
 1240
-765
+1170
 1450
-798
+1203
 fruits-tmax-beta
 fruits-tmax-beta
 -10000
@@ -1159,9 +1146,9 @@ HORIZONTAL
 
 SLIDER
 1240
-805
+1210
 1450
-838
+1243
 fruits-prec-beta
 fruits-prec-beta
 -1000
@@ -1174,9 +1161,9 @@ HORIZONTAL
 
 SLIDER
 1240
-845
+1250
 1450
-878
+1283
 fruits-lat-beta
 fruits-lat-beta
 -10000
@@ -1189,9 +1176,9 @@ HORIZONTAL
 
 SLIDER
 1240
-880
+1285
 1450
-913
+1318
 fruits-lon-beta
 fruits-lon-beta
 -10000
@@ -1204,9 +1191,9 @@ HORIZONTAL
 
 SLIDER
 1240
-915
+1320
 1450
-948
+1353
 fruits-random-threshold
 fruits-random-threshold
 0
@@ -1218,10 +1205,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-505
-685
-715
-718
+1015
+820
+1225
+853
 dairy-intercept
 dairy-intercept
 -100000
@@ -1233,10 +1220,10 @@ kg/ha
 HORIZONTAL
 
 SLIDER
-505
-725
-715
-758
+1015
+860
+1225
+893
 dairy-tmin-beta
 dairy-tmin-beta
 -10000
@@ -1248,25 +1235,25 @@ kg/ha per °C
 HORIZONTAL
 
 SLIDER
-505
-765
-715
-798
+1015
+900
+1225
+933
 dairy-tmax-beta
 dairy-tmax-beta
 -10000
 10000
--300.0
+-301.0
 1
 1
 kg/ha per °C
 HORIZONTAL
 
 SLIDER
-505
-805
-715
-838
+1015
+940
+1225
+973
 dairy-prec-beta
 dairy-prec-beta
 -1000
@@ -1278,10 +1265,10 @@ kg/ha per mm
 HORIZONTAL
 
 SLIDER
-505
-840
-715
-873
+1015
+975
+1225
+1008
 dairy-lat-beta
 dairy-lat-beta
 -10000
@@ -1293,10 +1280,10 @@ kg/ha per deg.
 HORIZONTAL
 
 SLIDER
-505
-875
-715
-908
+1015
+1010
+1225
+1043
 dairy-lon-beta
 dairy-lon-beta
 -10000
@@ -1308,10 +1295,10 @@ kg/ha per deg.
 HORIZONTAL
 
 SLIDER
-505
-915
-715
-948
+1015
+1050
+1225
+1083
 dairy-random-threshold
 dairy-random-threshold
 0
@@ -1323,10 +1310,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-10
-435
-220
-468
+795
+540
+1005
+573
 shock-threshold
 shock-threshold
 0
@@ -1338,10 +1325,10 @@ NIL
 HORIZONTAL
 
 SWITCH
-10
-325
-220
-358
+330
+1135
+540
+1168
 flip-data-series?
 flip-data-series?
 0
@@ -1349,10 +1336,10 @@ flip-data-series?
 -1000
 
 SLIDER
-10
-470
-220
-503
+330
+1215
+540
+1248
 raise-lower-tmin
 raise-lower-tmin
 -5
@@ -1364,10 +1351,10 @@ raise-lower-tmin
 HORIZONTAL
 
 SLIDER
-10
-510
-220
-543
+330
+1255
+540
+1288
 raise-lower-tmax
 raise-lower-tmax
 -5
@@ -1379,10 +1366,10 @@ raise-lower-tmax
 HORIZONTAL
 
 SLIDER
-10
-545
-220
-578
+330
+1295
+540
+1328
 raise-lower-prec
 raise-lower-prec
 -250
@@ -1394,10 +1381,10 @@ mm
 HORIZONTAL
 
 SWITCH
-10
-400
-220
-433
+675
+540
+790
+573
 shock
 shock
 1
@@ -1410,7 +1397,7 @@ MONITOR
 1450
 55
 Data series
-[data-series] ls:of tmin-ls-model
+ifelse-value \n  ((settings = 0))\n  [\"NA\"]\n  [data-series]
 0
 1
 11
@@ -1447,6 +1434,120 @@ mean [value-baseline-rel] of patches with [\n not is-missing? value-baseline-rel
 5
 1
 11
+
+PLOT
+10
+10
+440
+135
+Grains (Kilogram per Hectare)
+Months
+Mean
+0.0
+0.0
+0.0
+0.0
+true
+true
+"set-plot-y-range 0 (plot-max-y \"grains\")" "set-plot-x-range 0 plot-x-max-range"
+PENS
+"Estimate" 1.0 0 -955883 true "" "set-plot-pen-color plot-pen-color orange\n\nplot mean [grains-yield] of patches with [not is-missing? grains-yield]"
+"Real" 1.0 0 -7500403 true "" "plot mean [grains-yield-baseline-1] of patches with [\n  not is-missing? grains-yield-baseline-1\n]"
+
+PLOT
+10
+140
+440
+265
+Protein (Kilogram per Hectare)
+Months
+Mean
+0.0
+0.0
+0.0
+0.0
+true
+true
+"set-plot-y-range 0 (plot-max-y \"protein\")" "set-plot-x-range 0 plot-x-max-range"
+PENS
+"Estimate" 1.0 0 -8630108 true "" "set-plot-pen-color plot-pen-color violet\n\nplot mean [protein-yield] of patches with [not is-missing? protein-yield]"
+"Real" 1.0 0 -7500403 true "" "plot mean [protein-yield-baseline-1] of patches with [\n  not is-missing? protein-yield-baseline-1\n]"
+
+PLOT
+10
+270
+440
+395
+Dairy (Kilogram per Hectare)
+Months
+Mean
+0.0
+0.0
+0.0
+0.0
+true
+true
+"set-plot-y-range 0 (plot-max-y \"dairy\")" "set-plot-x-range 0 plot-x-max-range"
+PENS
+"Estimate" 1.0 0 -13345367 true "" "set-plot-pen-color plot-pen-color blue\n\nplot mean [dairy-yield] of patches with [not is-missing? dairy-yield]"
+"Real" 1.0 0 -7500403 true "" "plot mean [dairy-yield-baseline-1] of patches with [\n  not is-missing? dairy-yield-baseline-1\n]"
+
+PLOT
+10
+400
+440
+525
+Non-leafy vegetables (Kilogram per Hectare)
+Months
+Mean
+0.0
+0.0
+0.0
+0.0
+true
+true
+"set-plot-y-range 0 (plot-max-y \"non-leafy-veg\")" "set-plot-x-range 0 plot-x-max-range"
+PENS
+"Estimate" 1.0 0 -10899396 true "" "set-plot-pen-color plot-pen-color green\n\nplot mean [non-leafy-veg-yield] of patches with [not is-missing? non-leafy-veg-yield]"
+"Real" 1.0 0 -7500403 true "" "plot mean [non-leafy-veg-yield-baseline-1] of patches with [\n  not is-missing? non-leafy-veg-yield-baseline-1\n]"
+
+PLOT
+10
+530
+440
+655
+Leafy Veg. (Kilogram per Hectare)
+Months
+Mean
+0.0
+0.0
+0.0
+0.0
+true
+true
+"set-plot-y-range 0 (plot-max-y \"leafy-veg\")" "set-plot-x-range 0 plot-x-max-range"
+PENS
+"Estimate" 1.0 0 -14835848 true "" "set-plot-pen-color plot-pen-color turquoise\n\nplot mean [leafy-veg-yield] of patches with [not is-missing? leafy-veg-yield]"
+"Real" 1.0 0 -7500403 true "" "plot mean [leafy-veg-yield-baseline-1] of patches with [\n  not is-missing? leafy-veg-yield-baseline-1\n]"
+
+PLOT
+10
+660
+440
+785
+Fruits (Kilogram per Hectare)
+Months
+Mean
+0.0
+0.0
+0.0
+0.0
+true
+true
+"set-plot-y-range 0 (plot-max-y \"fruits\")" "set-plot-x-range 0 plot-x-max-range"
+PENS
+"Estimate" 1.0 0 -2674135 true "" "set-plot-pen-color plot-pen-color red\n\nplot mean [fruits-yield] of patches with [not is-missing? fruits-yield]"
+"Real" 1.0 0 -7500403 true "" "plot mean [fruits-yield-baseline-1] of patches with [\n  not is-missing? fruits-yield-baseline-1\n]"
 
 @#$#@#$#@
 # FOODCLIM: SIMULATING FOOD YIELD RESPONSES TO CLIMATE CHANGE IN NETLOGO

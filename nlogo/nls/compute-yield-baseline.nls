@@ -1,4 +1,4 @@
-; __includes ["num-to-str-month.nls"]
+; __includes ["str-to-num-month.nls"]
 
 ; globals [month]
 
@@ -12,14 +12,16 @@
 ;]
 
 to compute-yield-baseline
-  if (all? patches [runresult (word "grains-yield-baseline-" month) = 0]) [
+  let month-num str-to-num-month month
+  
+  if (all? patches [runresult (word "grains-yield-baseline-" month-num) = 0]) [
     ask patches [
-      run (word "set grains-yield-baseline-" month " grains-yield")
-      run (word "set protein-yield-baseline-" month " protein-yield")
-      run (word "set dairy-yield-baseline-" month " dairy-yield")
-      run (word "set non-leafy-veg-yield-baseline-" month " non-leafy-veg-yield")
-      run (word "set leafy-veg-yield-baseline-" month " leafy-veg-yield")
-      run (word "set fruits-yield-baseline-" month " fruits-yield")
+      run (word "set grains-yield-baseline-" month-num " grains-yield")
+      run (word "set protein-yield-baseline-" month-num " protein-yield")
+      run (word "set dairy-yield-baseline-" month-num " dairy-yield")
+      run (word "set non-leafy-veg-yield-baseline-" month-num " non-leafy-veg-yield")
+      run (word "set leafy-veg-yield-baseline-" month-num " leafy-veg-yield")
+      run (word "set fruits-yield-baseline-" month-num " fruits-yield")
     ]
   ]
 end

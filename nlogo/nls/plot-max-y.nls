@@ -1,0 +1,37 @@
+; __includes ["check-string.nls" "quartile.nls"]
+
+to-report plot-max-y [#food]
+  assert-string #food
+  
+  let values [runresult (word #food "-yield")] of patches with [
+    not is-missing? runresult (word #food "-yield")
+  ]
+
+  report ceiling ((quartile values 3) + (6 * (quartile values "iqr")))
+end
+
+; patches-own [
+;   grains-yield
+;   protein-yield
+;   non-leafy-veg-yield
+;   leafy-veg-yield
+;   fruits-yield
+;   dairy-yield
+; ]
+
+to-report plot-max-y-log
+  let yield-data (list
+    log mean [grains-yield] of patches with [not is-missing? grains-yield] 10
+    log mean [protein-yield] of patches with [not is-missing? protein-yield] 10
+    log mean [non-leafy-veg-yield] of patches with [
+      not is-missing? non-leafy-veg-yield
+    ] 10
+    log mean [leafy-veg-yield] of patches with [
+      not is-missing? leafy-veg-yield
+    ] 10
+    log mean [fruits-yield] of patches with [not is-missing? fruits-yield] 10
+    log mean [dairy-yield] of patches with [not is-missing? dairy-yield] 10
+  )
+
+  report ceiling ((max yield-data) + 1)
+end
