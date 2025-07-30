@@ -124,11 +124,11 @@ A BibTeX entry for LaTeX users is:
 #| output: asis
 
 cat(
-  badger::badge_custom( # Contributor Covenant
-    "Contributor%20Covenant",
-    "2.1",
-    "4baaaa",
-    "CODE_OF_CONDUCT.md"
+  badger::badge_custom(
+    x = "Contributor%20Covenant",
+    y = "2.1",
+    color = "4baaaa",
+    url = "CODE_OF_CONDUCT.md"
   )
 )
 ```

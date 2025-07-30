@@ -5,7 +5,7 @@
   "dateCreated": "2025-05-12",
   "applicationCategory": "Agent-based modeling",
   "applicationSubCategory": "Food yield modeling",
-  "name": "FoodClim: Simulating food yield responses to climate change in NetLogo",
+  "name": "FoodClim: Food yield responses to climate change in NetLogo",
   "author": [
     {
       "@type": "Person",
@@ -98,7 +98,7 @@
     "Geospatial Analysis",
     "Historical Climate Data",
     "LevelSpace",
-    "FoodClim",
+    "LogoClim",
     "Models",
     "NetLogo",
     "Parallel Execution",
