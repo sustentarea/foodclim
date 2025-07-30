@@ -15,7 +15,7 @@ GPLv3](https://img.shields.io/badge/license-GPLv3-bd0000.svg)](https://www.gnu.o
 
 ## Overview
 
-`FoodClim` is a [NetLogo](https://ccl.northwestern.edu/netlogo/) model
+`FoodClim` is a [NetLogo](https://www.netlogo.org) model
 for simulating and visualizing how food yield responds to different
 climate conditions. It is designed to support empirically grounded
 agent-based models on food systems and to improve the reproducibility of
@@ -158,7 +158,7 @@ the data, and the many funding agencies that support CMIP6 and ESGF.
     </td>
     <td width="70%">
       <p>
-        This work was developed with support from the 
+        This work was developed with support from the
         <a href="https://www.fsp.usp.br/sustentarea/">Sustentarea</a>
          Research and Extension Center at the University of São Paulo (<a href="https://www5.usp.br/">USP</a>).
       </p>
@@ -179,10 +179,10 @@ the data, and the many funding agencies that support CMIP6 and ESGF.
     </td>
     <td width="70%">
       <p>
-        This work was supported by the Department of Science and 
-        Technology of the Secretariat of Science, Technology, and Innovation 
-        and of the Health Economic-Industrial Complex (<a href="https://www.gov.br/saude/pt-br/composicao/sectics/">SECTICS</a>)  of the <a href="https://www.gov.br/saude/pt-br/composicao/sectics/">Ministry of Health</a> 
-        of Brazil, and the National Council for Scientific and 
+        This work was supported by the Department of Science and
+        Technology of the Secretariat of Science, Technology, and Innovation
+        and of the Health Economic-Industrial Complex (<a href="https://www.gov.br/saude/pt-br/composicao/sectics/">SECTICS</a>)  of the <a href="https://www.gov.br/saude/pt-br/composicao/sectics/">Ministry of Health</a>
+        of Brazil, and the National Council for Scientific and
         Technological Development (<a href="https://www.gov.br/cnpq/">CNPq</a>) (grant no. 444588/2023-0).
       </p>
     </td>

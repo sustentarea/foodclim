@@ -77,7 +77,7 @@ cat(
 
 ## Overview
 
-`FoodClim` is a [NetLogo](https://ccl.northwestern.edu/netlogo/) model for simulating and visualizing how food yield responds to different climate conditions. It is designed to support empirically grounded agent-based models on food systems and to improve the reproducibility of simulations by enabling [parallel execution](#integrating-with-other-models) alongside other models.
+`FoodClim` is a [NetLogo](https://www.netlogo.org) model for simulating and visualizing how food yield responds to different climate conditions. It is designed to support empirically grounded agent-based models on food systems and to improve the reproducibility of simulations by enabling [parallel execution](#integrating-with-other-models) alongside other models.
 
 The model runs in parallel with the [`LogoClim`](https://github.com/sustentarea/logoclim) model, which provides climate data from [WorldClim 2.1](https://worldclim.org/).
 
