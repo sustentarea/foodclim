@@ -34,7 +34,6 @@ to setup-logoclim
     set shared-socioeconomic-pathway #shared-socioeconomic-pathway
     set start-year #year
     set start-month #month
-    set transition-seconds 0
   ]
 
   ls:ask tmin-ls-model [

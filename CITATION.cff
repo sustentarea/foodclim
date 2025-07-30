@@ -6,7 +6,7 @@ type: software
 authors:
   - given-names: Daniel
     family-names: Vartanian
-    email: danvartan@gmail.com
+    email: hi@danielvartan.com
     affiliation: University of São Paulo
     orcid: 'https://orcid.org/0000-0001-7782-759X'
   - given-names: Leandro
@@ -26,37 +26,37 @@ abstract: >-
   reproducibility of simulations by enabling parallel execution alongside other
   models.
 keywords:
-  - Agent-based modeling
-  - Climate change
-  - Climate data visualization
-  - Climate model integration
-  - Climate projections
-  - Climate simulation
+  - Agent-Based Modeling
+  - Climate Change
+  - Climate Data Visualization
+  - Climate Model Integration
+  - Climate Projections
+  - Climate Simulation
   - CMIP6
-  - Complex systems
-  - Complexity science
-  - Data interoperability
-  - Food systems
-  - Food yield
-  - Food security
-  - Environmental sciences
-  - Environmental simulation
-  - Future climate scenarios
-  - Geospatial analysis
-  - Historical climate data
+  - Complex Systems
+  - Complexity Science
+  - Data Interoperability
+  - Food Systems
+  - Food Yield
+  - Food Security
+  - Environmental Sciences
+  - Environmental Simulation
+  - Future Climate Scenarios
+  - Geospatial Analysis
+  - Historical Climate Data
   - LevelSpace
   - LogoClim
   - Models
   - NetLogo
-  - Parallel execution
-  - Raster data
-  - Reproducible research
-  - Shared socioeconomic pathways
+  - Parallel Execution
+  - Raster Data
+  - Reproducible Research
+  - Shared Socioeconomic Pathways
   - Simulations
-  - Spatial analysis
-  - Spatial resolution
+  - Spatial Analysis
+  - Spatial Resolution
   - SSPs
-  - Time series
+  - Time Series
   - WorldClim
 identifiers:
   - type: doi
@@ -65,4 +65,4 @@ identifiers:
 repository-code: 'https://github.com/sustentarea/foodclim'
 repository: 'https://doi.org/10.17605/OSF.IO/ZGVMP'
 repository-artifact: 'https://doi.org/10.17605/OSF.IO/ZGVMP'
-license: MIT
+license: GPLv3

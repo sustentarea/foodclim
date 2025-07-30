@@ -11,7 +11,7 @@
       "@type": "Person",
       "familyName": "Vartanian",
       "givenName": "Daniel",
-      "email": "danvartan@gmail.com",
+      "email": "hi@danielvartan.com",
       "affiliation": {
         "@type": "Organization",
         "name": "University of São Paulo",
@@ -67,52 +67,52 @@
     "@type": "Person",
     "familyName": "Vartanian",
     "givenName": "Daniel",
-    "email": "danvartan@gmail.com",
+    "email": "hi@danielvartan.com",
     "@id": "https://orcid.org/0000-0001-7782-759X"
   },
   "maintainer": {
     "@type": "Person",
     "familyName": "Vartanian",
     "givenName": "Daniel",
-    "email": "danvartan@gmail.com",
+    "email": "hi@danielvartan.com",
     "@id": "https://orcid.org/0000-0001-7782-759X"
   },
   "description": "FoodClim} is a NetLogo model for simulating and visualizing how food yield responds to different climate conditions. It is designed to support empirically grounded agent-based models on food systems and to improve the reproducibility of simulations by enabling parallel execution alongside other models.",
   "keywords": [
-    "Agent-based modeling",
-    "Climate change",
-    "Climate data visualization",
-    "Climate model integration",
-    "Climate projections",
-    "Climate simulation",
+    "Agent-Based Modeling",
+    "Climate Change",
+    "Climate Data Visualization",
+    "Climate Model Integration",
+    "Climate Projections",
+    "Climate Simulation",
     "CMIP6",
-    "Complex systems",
-    "Complexity science",
-    "Data interoperability",
-    "Environmental sciences",
-    "Environmental simulation",
-    "Food systems",
-    "Food yield",
-    "Food security",
-    "Future climate scenarios",
-    "Geospatial analysis",
-    "Historical climate data",
+    "Complex Systems",
+    "Complexity Science",
+    "Data Interoperability",
+    "Environmental Sciences",
+    "Environmental Simulation",
+    "Food Systems",
+    "Food Yield",
+    "Food Security",
+    "Future Climate Scenarios",
+    "Geospatial Analysis",
+    "Historical Climate Data",
     "LevelSpace",
-    "foodclim",
+    "FoodClim",
     "Models",
     "NetLogo",
-    "Parallel execution",
-    "Raster data",
-    "Reproducible research",
-    "Shared socioeconomic pathways",
+    "Parallel Execution",
+    "Raster Data",
+    "Reproducible Research",
+    "Shared Socioeconomic Pathways",
     "Simulations",
-    "Spatial analysis",
-    "Spatial resolution",
+    "Spatial Analysis",
+    "Spatial Resolution",
     "SSPs",
-    "Time series",
+    "Time Series",
     "WorldClim"
   ],
-  "license": "https://spdx.org/licenses/MIT",
+  "license": "https://www.gnu.org/licenses/gpl-3.0",
   "codeRepository": "https://github.com/sustentarea/foodclim",
   "issueTracker": "https://github.com/sustentarea/foodclim/issues",
   "relatedLink": [
@@ -122,10 +122,10 @@
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "NetLogo",
-    "version": "6.4.0",
-    "url": "https://ccl.northwestern.edu/netlogo/"
+    "version": "7.0.0",
+    "url": "https://www.netlogo.org"
   },
-  "runtimePlatform": "NetLogo version 6.4.0 (2023-11)",
+  "runtimePlatform": "NetLogo version 7.0.0 (2025)",
   "operatingSystem": [
     "Linux",
     "macOS",
@@ -135,25 +135,36 @@
     {
       "@type": "SoftwareApplication",
       "name": "NetLogo",
-      "version": ">= 6.4",
+      "version": ">= 7.0.0",
       "provider": {
-        "@id": "https://ccl.northwestern.edu/netlogo/",
+        "@id": "https://www.netlogo.org",
         "@type": "Organization",
         "name": "Center for Connected Learning and Computer-Based Modeling (CCL), Northwestern University",
-        "url": "https://ccl.northwestern.edu/netlogo/"
+        "url": "https://www.netlogo.org"
       },
-      "sameAs": "https://ccl.northwestern.edu/netlogo/download.shtml"
+      "sameAs": "https://www.netlogo.orgdownload.shtml"
+    },
+    {
+      "name": "NetLogo LevelSpace extension",
+      "version": ">= 2.4.0",
+      "provider": {
+        "@id": "https://www.netlogo.org",
+        "@type": "Organization",
+        "name": "Center for Connected Learning and Computer-Based Modeling (CCL), Northwestern University",
+        "url": "https://www.netlogo.org"
+      },
+      "sameAs": "https://github.com/NetLogo/LevelSpace/"
     },
     {
       "name": "NetLogo String extension",
-      "version": ">= 1.1.0",
+      "version": ">= 1.2.0",
       "provider": {
-        "@id": "https://ccl.northwestern.edu/netlogo/",
+        "@id": "https://www.netlogo.org",
         "@type": "Organization",
         "name": "Center for Connected Learning and Computer-Based Modeling (CCL), Northwestern University",
-        "url": "https://ccl.northwestern.edu/netlogo/"
+        "url": "https://www.netlogo.org"
       },
-      "sameAs": "https://github.com/NetLogo/String-Extension/releases/latest/"
+      "sameAs": "https://github.com/NetLogo/String-Extension/"
     }
   ],
   "developmentStatus": "active",
